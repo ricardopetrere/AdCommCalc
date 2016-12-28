@@ -149,12 +149,12 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       }
       reader.readAsText(file);
     });
-    var refWorld = localStorage.getItem('refWorld');
-    if (refWorld) {
+    var refIndustry = localStorage.getItem('refIndustry');
+    if (refIndustry) {
       var i = 0;
       for (i in planets) {
-        if (planets[i] === refWorld) {
-          $scope.setWorld(refWorld);
+        if (planets[i] === refIndustry) {
+          $scope.setWorld(refIndustry);
           break;
         }
       }
@@ -843,7 +843,7 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
 
   $scope.export = function() {
     var blob = new Blob([getJsonForExport()], {type: "application/json"});
-    var title = "AdvCapCalc.json";
+    var title = "AdvCommCalc.json";
     if (window.navigator.msSaveOrOpenBlob) {
       navigator.msSaveBlob(blob, title);
     } else {
@@ -1123,7 +1123,7 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   };
 
   $scope.isEvent = function() {
-    return true;//!$scope.isWorld('potatoes') && !$scope.isWorld('land') && !$scope.isWorld('ore');
+    return !$scope.isWorld('potatoes') && !$scope.isWorld('land') && !$scope.isWorld('ore') && !$scope.isWorld('weapons') && !$scope.isWorld('medicine');
   };
 
   $scope.isWorld = function(world) {
@@ -1265,7 +1265,7 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     $scope.fillBefore = [false, false];
     $scope.compare = false;
     $scope.ref = $scope[planet];
-    localStorage.setItem('refWorld', planet);
+    localStorage.setItem('refIndustry', planet);
   };
 
   function suitFromName(name) {
@@ -1352,6 +1352,7 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   };
 
   function loadDefaults() {
+    $scope.land.managerName = 'Workers';
     $scope.land.investments = [
       ['Blasting Sites', 0, false, 0, 0, 0, 0],
       ['Clearcuts', 0, false, 0, 0, 0, 0],
@@ -1359,6 +1360,7 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       ['Highway', 0, false, 0, 0, 0, 0],
       ['Super Highway', 0, false, 0, 0, 0, 0]
     ];
+    $scope.medicine.managerName = 'Nurses';
     $scope.medicine.investments = [
       ['Ambulances', 0, false, 0, 0, 0, 0],
       ['Field Hospital', 0, false, 0, 0, 0, 0],
@@ -1366,6 +1368,7 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       ['Hospital', 0, false, 0, 0, 0, 0],
       ['Cloning Lab', 0, false, 0, 0, 0, 0]
     ];
+    $scope.ore.managerName = 'Miners';
     $scope.ore.investments = [
       ['Mines', 0, false, 0, 0, 0, 0],
       ['Excavator', 0, false, 0, 0, 0, 0],
@@ -1373,6 +1376,7 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       ['Deep Bore', 0, false, 0, 0, 0, 0],
       ['Mega Drill', 0, false, 0, 0, 0, 0]
     ];
+    $scope.potatoes.managerName = 'Farmers';
     $scope.potatoes.investments = [
       ['Communes', 0, false, 0, 0, 0, 0],
       ['Collectives', 0, false, 0, 0, 0, 0],
@@ -1380,6 +1384,7 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       ['Hive', 0, false, 0, 0, 0, 0],
       ['Colony', 0, false, 0, 0, 0, 0]
     ];
+    $scope.weapons.managerName = 'Soldiers';
     $scope.weapons.investments = [
       ['Fireteams', 0, false, 0, 0, 0, 0],
       ['Squad', 0, false, 0, 0, 0, 0],
