@@ -73,71 +73,50 @@ advApp.filter('rec', function() {
     if (input === 'all') {
       retVal = 'All';
     } else if (input[0] === 'level') {
-      retVal = loc.investments[input[1]][0];
+      retVal = loc.generators[input[1]][0];
     } else if (input[0] === 'cash') {
-      var index = Math.floor(loc.cashUpgrades[input[1]][1][0] / 2);
-      if (index === loc.investments.length + 1) {
+      var index = Math.floor(loc.upgrades[input[1]][1][0] / 2);
+      if (index === loc.generators.length + 1) {
         retVal = 'Angel Investor';
       }
       else {
-        retVal = (index < loc.investments.length) ? loc.investments[index][0] : 'All';
-        retVal += (loc.cashUpgrades[input[1]][1][0] % 2 === 0) ? ' Profit' : ' Speed';
+        retVal = (index < loc.generators.length) ? loc.generators[index][0] : 'All';
+        retVal += (loc.upgrades[input[1]][1][0] % 2 === 0) ? ' Profit' : ' Speed';
       }
-      retVal += ' ' + loc.cashUpgrades[input[1]][1][1];
+      retVal += ' ' + loc.upgrades[input[1]][1][1];
     }
     return retVal;
   }
 });
 
 advApp.controller('advController', ['$document', '$filter', '$scope', function($document, $filter, $scope) {
-  $scope.accOpen = [false, false, false, false, false, false, false];
+  //
+  $scope.accOpen = [false, false, false, false, false];
+  //
   $scope.accOpen2 = [false, false];
-  $scope.clearAfter = [false, false];
+  // $scope.clearAfter = [false, false];
   $scope.compare = false;
-  $scope.fillBefore = [false, false];
-  $scope.filterTime = {'days': null, 'hours': null, 'minutes': null, 'percentage': null};
+  $scope.comradesPerSecond = 1;
+  // $scope.fillBefore = [false, false];
+  // $scope.filterTime = {'days': null, 'hours': null, 'minutes': null, 'percentage': null};
   $scope.illionsArray = illionsArr.slice(1);
   $scope.land = {};
   $scope.medicine = {};
   $scope.ore = {};
-  $scope.platinumboosts = [17.77, 77.77, 777.77, 7777.77];
   $scope.potatoes = {};
-  $scope.raw = false;
-  $scope.ref = $scope.potatoes;
-  $scope.reverse = true;
-  $scope.selectAll = [false, false, false, false];
-  $scope.showUpdate = false;
-  $scope.sortIndex = 2;
-  $scope.suitList = [
-    ['Blue', 3],
-    ['Gold', 2],
-    ['Green', 10],
-    ['Red', 2],
-    ['White', 2]
-  ];
-  $scope.superbadgeList = [
-    /*
-    The structure is as follows:
-    ['Name',Planet ID,[Investment,x Profit]]
-    */
-    ['Basket Case', 0, [6, 25]],
-    ['Buy-It Shield', 0, [2, 30]],
-    ['Candy Canes', 0, [10, 20]],
-    ['Burger', 0, [12, 20]],
-    ['Unicorn', 0, [16, 15]],
-    ['Rainbow Machine', 1, [0, 30]],
-    ['Villain Mask', 1, [6, 25]],
-    ['Space Buddies', 1, [8, 20]],
-    ['Silver Blade', 1, [12, 20]],
-    ['Speaker', 1, [16, 15]],
-    ['Boxing Bear', 2, [8, 20]],
-    ['Time Machine', 2, [14, 15]],
-    ['Bonbon', 0, [0, 25]],
-    ['Kitchen Gadget', 0, [4, 30]],
-    ['Fuzzee', 0, [8, 20]]
-  ];
+  $scope.refIndustry = $scope.potatoes;
+  $scope.numComrades = 0;
+  $scope.numScientists = 0;
+  $scope.self = $scope;
+  $scope.viewNumComrades = 0;
+  $scope.viewExpComrades = 0;
+  $scope.viewNumScientists = 0;
+  $scope.viewExpScientists = 0;
+  // $scope.reverse = true;
+  // $scope.selectAll = [false, false, false, false];
+  // $scope.sortIndex = 2;
   $scope.weapons = {};
-  var planets = ['potatoes', 'land', 'ore', 'weapons', 'medicine'];
+  var industries = ['potatoes', 'land', 'ore', 'weapons', 'medicine'];
 
   angular.element(document).ready(function() {
     var fileInput = document.getElementById('fileInput');
@@ -146,90 +125,91 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       reader = new FileReader();
       reader.onload = function(e) {
         loadExportedJson(e.target.result);
-      }
+      };
       reader.readAsText(file);
     });
     var refIndustry = localStorage.getItem('refIndustry');
     if (refIndustry) {
       var i = 0;
-      for (i in planets) {
-        if (planets[i] === refIndustry) {
-          $scope.setWorld(refIndustry);
+      for (i in industries) {
+        if (industries[i] === refIndustry) {
+          $scope.setIndustry(refIndustry);
           break;
         }
       }
     }
-    var saved = localStorage.getItem('planets');
+    var saved = localStorage.getItem('industries');
     if (saved) {
       loadExportedJson(saved);
     }
   });
 
   function loadExportedJson(str) {
+    return;//Rethink this block
     var i = 0, j = 0, k = 0,
     obj = JSON.parse(str);
-    for (k in planets) {
-      if (obj.hasOwnProperty(planets[k])) {
-        $scope.fullyResetPlanet($scope[planets[k]]);
-        for (i in obj[planets[k]].levels) {
-          if (obj[planets[k]].levels.hasOwnProperty(i)) {
-            for (j = 0; j < $scope[planets[k]].investments.length; j++) {
-              if ($scope[planets[k]].investments[j][0] === i) {
-                $scope[planets[k]].investments[j][1] = obj[planets[k]].levels[i];
+    for (k in industries) {
+      if (obj.hasOwnProperty(industries[k])) {
+        $scope.fullyResetPlanet($scope[industries[k]]);
+        for (i in obj[industries[k]].levels) {
+          if (obj[industries[k]].levels.hasOwnProperty(i)) {
+            for (j = 0; j < $scope[industries[k]].generators.length; j++) {
+              if ($scope[industries[k]].generators[j][0] === i) {
+                $scope[industries[k]].generators[j][1] = obj[industries[k]].levels[i];
                 break;
               }
             }
           }
         }
-        $scope[planets[k]].numAngels = obj[planets[k]].numAngels;
-        $scope.updateViewNumAngels($scope[planets[k]]);
-        for (i = 0; i < obj[planets[k]].upgradeIndexUpTo; i++) {
-          $scope[planets[k]].cashUpgrades[i][$scope[planets[k]].cashUpgrades[i].length - 1] = true;
+        $scope[industries[k]].numScientists = obj[industries[k]].numScientists;
+        // $scope.updateViewNumAngels($scope[industries[k]]);
+        for (i = 0; i < obj[industries[k]].upgradeIndexUpTo; i++) {
+          $scope[industries[k]].upgrades[i][$scope[industries[k]].upgrades[i].length - 1] = true;
         }
-        for (i = 0; i < obj[planets[k]].angelUpgradeIndexUpTo; i++) {
-          $scope[planets[k]].angelUpgrades[i][$scope[planets[k]].angelUpgrades[i].length - 1] = true;
+        for (i = 0; i < obj[industries[k]].angelUpgradeIndexUpTo; i++) {
+          $scope[industries[k]].medals[i][$scope[industries[k]].medals[i].length - 1] = true;
         }
-        for (i = 0; i < obj[planets[k]].upgradeIndexBonus.length; i++) {
-          $scope[planets[k]].cashUpgrades[obj[planets[k]].upgradeIndexBonus[i]][$scope[planets[k]].cashUpgrades[obj[planets[k]].upgradeIndexBonus[i]].length - 1] = true;
+        for (i = 0; i < obj[industries[k]].upgradeIndexBonus.length; i++) {
+          $scope[industries[k]].upgrades[obj[industries[k]].upgradeIndexBonus[i]][$scope[industries[k]].upgrades[obj[industries[k]].upgradeIndexBonus[i]].length - 1] = true;
         }
-        for (i = 0; i < obj[planets[k]].angelUpgradeIndexBonus.length; i++) {
-          $scope[planets[k]].angelUpgrades[obj[planets[k]].angelUpgradeIndexBonus[i]][$scope[planets[k]].angelUpgrades[obj[planets[k]].angelUpgradeIndexBonus[i]].length - 1] = true;
+        for (i = 0; i < obj[industries[k]].angelUpgradeIndexBonus.length; i++) {
+          $scope[industries[k]].medals[obj[industries[k]].angelUpgradeIndexBonus[i]][$scope[industries[k]].medals[obj[industries[k]].angelUpgradeIndexBonus[i]].length - 1] = true;
         }
-        for (i = 0; i < obj[planets[k]].managersBought.length; i++) {
-          $scope[planets[k]].managerUpgrades[Math.floor(obj[planets[k]].managersBought[i] / 2)][obj[planets[k]].managersBought[i] % 2][1] = true;
+        for (i = 0; i < obj[industries[k]].managersBought.length; i++) {
+          $scope[industries[k]].industryExperiments[Math.floor(obj[industries[k]].managersBought[i] / 2)][obj[industries[k]].managersBought[i] % 2][1] = true;
         }
-        if (obj[planets[k]].platinumboost != null) {
+        if (obj[industries[k]].platinumboost != null) {
           console.log("Has platinum boost saved.");
           for (i = 0; i < $scope.platinumboosts.length; i++) {
-            if (obj[planets[k]].platinumboost == $scope.platinumboosts[i]) {
+            if (obj[industries[k]].platinumboost == $scope.platinumboosts[i]) {
               console.log("Compares to " + i + ".");
-              $scope.changePlatinum($scope[planets[k]], i);
+              $scope.changePlatinum($scope[industries[k]], i);
             }
           }
         } else {
           console.log("Does not have platinum boost saved.");
-          $scope.changePlatinum($scope[planets[k]], 0);
+          $scope.changePlatinum($scope[industries[k]], 0);
         }
-        $scope[planets[k]].noSingles = obj[planets[k]].noSingles || false;
-        $scope[planets[k]].noTens = obj[planets[k]].noTens || false;
-        $scope[planets[k]].noHundreds = obj[planets[k]].noHundreds || false;
-        if ('suit' in obj[planets[k]]) {
-          $scope[planets[k]].suits[obj[planets[k]].suit][0] = true;
+        $scope[industries[k]].noSingles = obj[industries[k]].noSingles || false;
+        $scope[industries[k]].noTens = obj[industries[k]].noTens || false;
+        $scope[industries[k]].noHundreds = obj[industries[k]].noHundreds || false;
+        if ('suit' in obj[industries[k]]) {
+          $scope[industries[k]].suits[obj[industries[k]].suit][0] = true;
         }
-        if ('badge' in obj[planets[k]]) {
-          $scope[planets[k]].badges[obj[planets[k]].badge][0] = true;
+        if ('badge' in obj[industries[k]]) {
+          $scope[industries[k]].badges[obj[industries[k]].badge][0] = true;
         }
-        $scope[planets[k]].triples = obj[planets[k]].triples;
-        $scope[planets[k]].flux = obj[planets[k]].flux;
-        $scope[planets[k]].bonusAngelEffectiveness = obj[planets[k]].bonusAngelEffectiveness;
-        $scope[planets[k]].bonusMultiplier = obj[planets[k]].bonusMultiplier;
-        if (angular.isDefined(obj[planets[k]].megaTicket)) {
-          for (i = 0; i < obj[planets[k]].megaTicket.length; i++) {
-            $scope[planets[k]].investments[obj[planets[k]].megaTicket[i]][2] = true;
+        $scope[industries[k]].triples = obj[industries[k]].triples;
+        $scope[industries[k]].flux = obj[industries[k]].flux;
+        $scope[industries[k]].bonusAngelEffectiveness = obj[industries[k]].bonusAngelEffectiveness;
+        $scope[industries[k]].bonusMultiplier = obj[industries[k]].bonusMultiplier;
+        if (angular.isDefined(obj[industries[k]].megaTicket)) {
+          for (i = 0; i < obj[industries[k]].megaTicket.length; i++) {
+            $scope[industries[k]].generators[obj[industries[k]].megaTicket[i]][2] = true;
           }
         }
       }
-      $scope.calc($scope[planets[k]]);
+      $scope.calc($scope[industries[k]]);
     }
     $scope.$digest();
   }
@@ -241,52 +221,17 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   $scope.applyRow = function(loc, row) {
     var i = 0;
     if (row[0] === 'all') {
-      for (; i < loc.investments.length; i++) {
-        if (loc.investments[i][1] < row[1]) {
-          loc.investments[i][1] = row[1];
+      for (; i < loc.generators.length; i++) {
+        if (loc.generators[i][1] < row[1]) {
+          loc.generators[i][1] = row[1];
         }
       }
     } else if (row[0][0] === 'level') {
-      loc.investments[row[0][1]][1] = row[1];
+      loc.generators[row[0][1]][1] = row[1];
     } else if (row[0][0] === 'cash') {
-      loc.cashUpgrades[row[0][1]][2] = true;
+      loc.upgrades[row[0][1]][2] = true;
     }
     $scope.calc(loc);
-  };
-
-  function applySuperBadge(loc) {
-    var i;
-    for (i = 0; i < loc.badges.length; i++) {
-      if (loc.badges[i][0] === true) {
-        if (loc.name === $scope[planets[$scope.superbadgeList[i][1]]].name) {
-          var row = $scope.superbadgeList[i][2];
-          var applyRow = Math.floor(row[0] / 2);
-          var applyType = row[0] % 2;
-          if (applyRow < loc.investments.length) {
-            if (applyType === 0) {
-              loc.investments[applyRow][3] *= row[1];
-            } else {
-              loc.investments[applyRow][4] /= row[1];
-            }
-          } else if (applyRow === loc.investments.length) {
-            if (applyType === 0) {
-              for (j = 0; j < loc.investments.length; j++) {
-                loc.investments[j][3] *= row[1];
-              }
-            } else {
-              for (j = 0; j < loc.investments.length; j++) {
-                loc.investments[j][4] /= row[1];
-              }
-            }
-          } else if (applyRow === loc.investments.length + 1) {
-            loc.angelEffectiveness += row[1];
-          } else if (row[0] < 30 || row[0] > 29 + loc.investments.length) {
-            throw 'Pair not dealt with: ' + row;
-          }
-        }
-        break;
-      }
-    }
   };
 
   function applyTuple(loc, row) {
@@ -297,30 +242,30 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       if (typeof row[i] === 'object') {
         applyRow = Math.floor(row[i][0] / 2);
         applyType = row[i][0] % 2;
-        if (applyRow < loc.investments.length) {
+        if (applyRow < loc.generators.length) {
           if (applyType === 0) {
-            loc.investments[applyRow][3] *= row[i][1];
+            loc.generators[applyRow][3] *= row[i][1];
           } else {
-            loc.investments[applyRow][4] /= row[i][1];
+            loc.generators[applyRow][4] /= row[i][1];
           }
-        } else if (applyRow === loc.investments.length) {
+        } else if (applyRow === loc.generators.length) {
           if (applyType === 0) {
-            for (j = 0; j < loc.investments.length; j++) {
-              loc.investments[j][3] *= row[i][1];
+            for (j = 0; j < loc.generators.length; j++) {
+              loc.generators[j][3] *= row[i][1];
             }
           } else {
-            for (j = 0; j < loc.investments.length; j++) {
-              loc.investments[j][4] /= row[i][1];
+            for (j = 0; j < loc.generators.length; j++) {
+              loc.generators[j][4] /= row[i][1];
             }
           }
-        } else if (applyRow === loc.investments.length + 1) {
+        } else if (applyRow === loc.generators.length + 1) {
           loc.angelEffectiveness += row[i][1];
-        } else if (row[i][0] < 30 || row[i][0] > 29 + loc.investments.length) {
+        } else if (row[i][0] < 30 || row[i][0] > 29 + loc.generators.length) {
           throw 'Tuple not dealt with: ' + row;
         }
       }
     }
-  };
+  }
 
   function calcUnlockCost(loc, index, fromLevel, numLevels) {
     var retVal = 1,
@@ -328,20 +273,20 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     managerDiscount = 1;
     for (; i < numLevels; i++) {
       retVal += Math.pow(loc.basePower[index], i);
-    };
-    if (index === 0 && $scope.isWorld('potatoes')) {
+    }
+    if (index === 0 && $scope.isIndustry('potatoes')) {
       fromLevel -= 1;
     }
-    for (i = 0; i < loc.angelUpgrades.length; i++) {
-      if (tupleIsActive(loc.angelUpgrades[i])) {
-        if (loc.angelUpgrades[i][1][0] === (30 + index)) {
-          fromLevel -= loc.angelUpgrades[i][1][1];
+    for (i = 0; i < loc.medals.length; i++) {
+      if (tupleIsActive(loc.medals[i])) {
+        if (loc.medals[i][1][0] === (30 + index)) {
+          fromLevel -= loc.medals[i][1][1];
         }
       }
     }
-    if (loc.managerUpgrades.length !== 0) {
-      for (i = 0; i < loc.managerUpgrades[index].length; i++) {
-        if (tupleIsActive(loc.managerUpgrades[index][i])) {
+    if (loc.industryExperiments.length !== 0) {
+      for (i = 0; i < loc.industryExperiments[index].length; i++) {
+        if (tupleIsActive(loc.industryExperiments[index][i])) {
           if (loc.name === 'potatoes') {
             if (i === 0) {
               managerDiscount = 0.9;
@@ -356,25 +301,25 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     }
     retVal *= loc.baseCost[index] * Math.pow(loc.basePower[index], fromLevel) * managerDiscount;
     return retVal;
-  };
+  }
 
   function calcUnlockCostAll(loc) {
-    var lowestLevel = loc.investments[0][1],
+    var lowestLevel = loc.generators[0][1],
     i = 1, j = 0,
     retVal = 0;
-    for (; i < loc.investments.length; i++) {
-      if (loc.investments[i][1] < lowestLevel) {
-        lowestLevel = loc.investments[i][1];
+    for (; i < loc.generators.length; i++) {
+      if (loc.generators[i][1] < lowestLevel) {
+        lowestLevel = loc.generators[i][1];
       }
     }
     i = 0;
-    while (i < loc.unlocks[loc.investments.length].length && lowestLevel >= loc.unlocks[loc.investments.length][i][0]) {
+    while (i < loc.unlocks[loc.generators.length].length && lowestLevel >= loc.unlocks[loc.generators.length][i][0]) {
       i++;
     }
-    if (i !== loc.unlocks[loc.investments.length].length) {
-      for (; j < loc.investments.length; j++) {
-        if (loc.investments[j][1] < loc.unlocks[loc.investments.length][i][0]) {
-          retVal += calcUnlockCost(loc, j, loc.investments[j][1], loc.unlocks[loc.investments.length][i][0] - loc.investments[j][1]);
+    if (i !== loc.unlocks[loc.generators.length].length) {
+      for (; j < loc.generators.length; j++) {
+        if (loc.generators[j][1] < loc.unlocks[loc.generators.length][i][0]) {
+          retVal += calcUnlockCost(loc, j, loc.generators[j][1], loc.unlocks[loc.generators.length][i][0] - loc.generators[j][1]);
         }
       }
     } else {
@@ -386,19 +331,17 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   $scope.calc = function(loc) {
     calcState(loc);
     calcAngels(loc);
-    calcSuits(loc);
-    calcSuperBadges(loc);
     calcRecommendations(loc);
-    localStorage.setItem('planets', getJsonForExport());
+    localStorage.setItem('industries', getJsonForExport());
   };
 
   function calcAngelCost(numAngels, mul) {
-    return (1e+15 * Math.pow(numAngels / mul, 2));
-  };
+    return (1e+15 * Math.pow(numScientists / mul, 2));
+  }
 
   $scope.calcAngelInvestors = function(loc) {
     loc.angelCosts = [];
-    var earnedNumAngels = loc.numAngels + loc.sacAngels;
+    var earnedNumAngels = loc.numScientists + loc.sacAngels;
     var loopVals = [['10%', 1.1], ['50%', 1.5], ['Doubled w/o Sacrificed', 2], ['Doubled', 2], ['5x', 5], ['10x', 10], ['Custom Multiplier', loc.customAngelMul || 0]];
     for (var val in loopVals) {
       loc.angelCosts[val] = []
@@ -407,11 +350,11 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
         if (val !== '2') {
           loc.angelCosts[val][1] = loopVals[val][1] * earnedNumAngels;
         } else {
-          loc.angelCosts[val][1] = (loopVals[val][1] * loc.numAngels) + loc.sacAngels;
+          loc.angelCosts[val][1] = (loopVals[val][1] * loc.numScientists) + loc.sacAngels;
         }
         loc.angelCosts[val][2] = calcAngelCost(loc.angelCosts[val][1], loc.angelScale);
         loc.angelCosts[val][3] = Math.max(loc.angelCosts[val][2] - loc.lifetimeEarnings, 0);
-        loc.angelCosts[val][4] = loc.angelCosts[val][3] / loc.totalMoneyPerSecond;
+        loc.angelCosts[val][4] = loc.angelCosts[val][3] / loc.comradesPerSecond;
       }
     }
   };
@@ -420,27 +363,27 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     var i = 0,
     tempPlanet = null;
     loc.angelExclamation = false;
-    for (; i < loc.angelUpgrades.length; i++) {
-      if (!tupleIsActive(loc.angelUpgrades[i]) && loc.angelUpgrades[i][0] < loc.numAngels) {
+    for (; i < loc.medals.length; i++) {
+      if (!tupleIsActive(loc.medals[i]) && loc.medals[i][0] < loc.numScientists) {
         tempPlanet = JSON.parse(JSON.stringify(loc));
-        tempPlanet.numAngels -= loc.angelUpgrades[i][0];
-        tempPlanet.angelUpgrades[i][tempPlanet.angelUpgrades[i].length - 1] = true;
+        tempPlanet.numScientists -= loc.medals[i][0];
+        tempPlanet.medals[i][tempPlanet.medals[i].length - 1] = true;
         calcState(tempPlanet);
-        var delta = tempPlanet.totalMoneyPerSecond - loc.totalMoneyPerSecond;
-        var percent = delta / loc.totalMoneyPerSecond;
+        var delta = tempPlanet.comradesPerSecond - loc.comradesPerSecond;
+        var percent = delta / loc.comradesPerSecond;
         if (delta > 0) {
-          loc.angelUpgrades[i][loc.angelUpgrades[i].length - 2] = percent;
+          loc.medals[i][loc.medals[i].length - 2] = percent;
           loc.angelExclamation = true;
         } else {
-          loc.angelUpgrades[i][loc.angelUpgrades[i].length - 2] = false;
+          loc.medals[i][loc.medals[i].length - 2] = false;
         }
       }
     }
-  };
+  }
 
   function calcRecommendations(loc) {
     var i = 0, j = 0, k = 0,
-    highestSharedLevel = loc.investments[0][1],
+    highestSharedLevel = loc.generators[0][1],
     inc = [],
     tempPlanet = JSON.parse(JSON.stringify(loc)),
     max = 0,
@@ -458,11 +401,11 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       inc.push(100);
     }
     $scope.updateFilterTime(loc);
-    for (; i < loc.investments.length; i++) {
+    for (; i < loc.generators.length; i++) {
       while (inc.length > 3 - (loc.noSingles ? 1 : 0) - (loc.noTens ? 1 : 0) - (loc.noHundreds ? 1 : 0)) {
         inc.pop();
       }
-      if (i === 1 && $scope.isWorld('potatoes')) {
+      if (i === 1 && $scope.isIndustry('potatoes')) {
         for (j = 1; j < 4; j++) {
           k = getDifferenceNBonus(loc, i, j);
           if (k !== null) {
@@ -482,90 +425,90 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
         }
       }
       for (j = 0; j < inc.length; j++) {
-        tempPlanet.investments = deepCopy(loc.investments);
-        tempPlanet.investments[i][1] += inc[j];
+        tempPlanet.generators = deepCopy(loc.generators);
+        tempPlanet.generators[i][1] += inc[j];
         calcState(tempPlanet);
-        tempUnlock = calcUnlockCost(loc, i, loc.investments[i][1], inc[j]);
-        tempUnlockTime = tempUnlock / loc.totalMoneyPerSecond;
-        tempPercentageIncrease = (tempPlanet.totalMoneyPerSecond - loc.totalMoneyPerSecond) * 100 / loc.totalMoneyPerSecond;
+        tempUnlock = calcUnlockCost(loc, i, loc.generators[i][1], inc[j]);
+        tempUnlockTime = tempUnlock / loc.comradesPerSecond;
+        tempPercentageIncrease = (tempPlanet.comradesPerSecond - loc.comradesPerSecond) * 100 / loc.comradesPerSecond;
         if ((loc.filterTime === null || loc.filterTime > tempUnlockTime) && ($scope.filterTime.percentage === null || $scope.filterTime.percentage < tempPercentageIncrease)) {
           upgradeScore = calcUpgradeScore(tempPlanet, loc, tempUnlockTime);
           if (upgradeScore > max) {
             max = upgradeScore;
-            maxObj = ['level', i, tempPlanet.investments[i][1]];
+            maxObj = ['level', i, tempPlanet.generators[i][1]];
           }
-          loc.recTable.push([['level', i], tempPlanet.investments[i][1], upgradeScore, tempUnlock, tempUnlockTime, tempPlanet.totalMoneyPerSecond - loc.totalMoneyPerSecond, tempPercentageIncrease]);
+          loc.recTable.push([['level', i], tempPlanet.generators[i][1], upgradeScore, tempUnlock, tempUnlockTime, tempPlanet.comradesPerSecond - loc.comradesPerSecond, tempPercentageIncrease]);
         }
       }
     }
     j = -1;
     for (i = 0; i < 22; i++) {
-      tempPlanet.investments = deepCopy(loc.investments);
+      tempPlanet.generators = deepCopy(loc.generators);
       tempPlanet.angelEffectiveness = loc.angelEffectiveness;
-      tempPlanet.cashUpgrades = deepCopy(loc.cashUpgrades);
+      tempPlanet.upgrades = deepCopy(loc.upgrades);
       j = getNextCashIndex(loc, j);
       if (j !== null) {
-        tempPlanet.cashUpgrades[j][tempPlanet.cashUpgrades[j].length - 1] = true;
+        tempPlanet.upgrades[j][tempPlanet.upgrades[j].length - 1] = true;
         calcState(tempPlanet);
-        tempUnlockTime = loc.cashUpgrades[j][0] / loc.totalMoneyPerSecond;
-        tempPercentageIncrease = (tempPlanet.totalMoneyPerSecond - loc.totalMoneyPerSecond) * 100 / loc.totalMoneyPerSecond;
+        tempUnlockTime = loc.upgrades[j][0] / loc.comradesPerSecond;
+        tempPercentageIncrease = (tempPlanet.comradesPerSecond - loc.comradesPerSecond) * 100 / loc.comradesPerSecond;
         if ((loc.filterTime === null || loc.filterTime > tempUnlockTime) && ($scope.filterTime.percentage === null || $scope.filterTime.percentage < tempPercentageIncrease)) {
           upgradeScore = calcUpgradeScore(tempPlanet, loc, tempUnlockTime);
           if (upgradeScore > max) {
             max = upgradeScore;
             maxObj = ['upgrade', j];
           }
-          loc.recTable.push([['cash', j], null, upgradeScore, loc.cashUpgrades[j][0], tempUnlockTime, tempPlanet.totalMoneyPerSecond - loc.totalMoneyPerSecond, tempPercentageIncrease]);
+          loc.recTable.push([['cash', j], null, upgradeScore, loc.upgrades[j][0], tempUnlockTime, tempPlanet.comradesPerSecond - loc.comradesPerSecond, tempPercentageIncrease]);
         }
       } else {
         break;
       }
     }
     tempUnlock = 0;
-    tempPlanet.investments = deepCopy(loc.investments);
-    tempPlanet.cashUpgrades = deepCopy(loc.cashUpgrades);
-    for (i = 1; i < loc.investments.length; i++) {
-      if (loc.investments[i][1] < highestSharedLevel) {
-        highestSharedLevel = loc.investments[i][1];
+    tempPlanet.generators = deepCopy(loc.generators);
+    tempPlanet.upgrades = deepCopy(loc.upgrades);
+    for (i = 1; i < loc.generators.length; i++) {
+      if (loc.generators[i][1] < highestSharedLevel) {
+        highestSharedLevel = loc.generators[i][1];
       }
     }
-    for (i = 0; i < loc.unlocks[loc.investments.length].length; i++) {
-      if (loc.unlocks[loc.investments.length][i][0] > highestSharedLevel) {
-        highestSharedLevel = loc.unlocks[loc.investments.length][i][0];
+    for (i = 0; i < loc.unlocks[loc.generators.length].length; i++) {
+      if (loc.unlocks[loc.generators.length][i][0] > highestSharedLevel) {
+        highestSharedLevel = loc.unlocks[loc.generators.length][i][0];
         break;
       }
     }
-    for (i = 0; i < tempPlanet.investments.length; i++) {
-      if (tempPlanet.investments[i][1] < highestSharedLevel) {
-        tempUnlock += calcUnlockCost(loc, i, tempPlanet.investments[i][1], highestSharedLevel - tempPlanet.investments[i][1]);
-        tempPlanet.investments[i][1] = highestSharedLevel;
+    for (i = 0; i < tempPlanet.generators.length; i++) {
+      if (tempPlanet.generators[i][1] < highestSharedLevel) {
+        tempUnlock += calcUnlockCost(loc, i, tempPlanet.generators[i][1], highestSharedLevel - tempPlanet.generators[i][1]);
+        tempPlanet.generators[i][1] = highestSharedLevel;
       }
     }
     calcState(tempPlanet);
-    tempUnlockTime = tempUnlock / loc.totalMoneyPerSecond;
-    tempPercentageIncrease = (tempPlanet.totalMoneyPerSecond - loc.totalMoneyPerSecond) * 100 / loc.totalMoneyPerSecond;
+    tempUnlockTime = tempUnlock / loc.comradesPerSecond;
+    tempPercentageIncrease = (tempPlanet.comradesPerSecond - loc.comradesPerSecond) * 100 / loc.comradesPerSecond;
     if ((loc.filterTime === null || loc.filterTime > tempUnlockTime) && ($scope.filterTime.percentage === null || $scope.filterTime.percentage < tempPercentageIncrease)) {
       upgradeScore = calcUpgradeScore(tempPlanet, loc, tempUnlockTime);
       if (upgradeScore > max) {
         max = upgradeScore;
         maxObj = ['all', highestSharedLevel];
       }
-      loc.recTable.push(['all', highestSharedLevel, upgradeScore, tempUnlock, tempUnlock / loc.totalMoneyPerSecond, tempPlanet.totalMoneyPerSecond - loc.totalMoneyPerSecond, tempPercentageIncrease]);
+      loc.recTable.push(['all', highestSharedLevel, upgradeScore, tempUnlock, tempUnlock / loc.comradesPerSecond, tempPlanet.comradesPerSecond - loc.comradesPerSecond, tempPercentageIncrease]);
     }
     loc.rec = maxObj;
     $scope.reverse = true;
     $scope.sortIndex = 2;
     loc.recTable = $filter('orderBy')(loc.recTable, indexOrder, $scope.reverse);
     updateRecString(loc);
-  };
+  }
 
   function calcState(loc) {
     var i = 0, j = true,
-    highestSharedLevel = loc.investments[0][1];
-    loc.totalMoneyPerSecond = 0;
+    highestSharedLevel = loc.generators[0][1];
+    loc.comradesPerSecond = 0;
     loc.angelEffectiveness = 2 + (loc.suits[suitFromName('red')][0] ? $scope.suitList[suitFromName('red')][1] : 0) + (loc.suits[suitFromName('green')][0] ? $scope.suitList[suitFromName('green')][1] : 0);
-    for (; i < loc.investments.length; i++) {
-      if (loc.investments[i][2] === false) {
+    for (; i < loc.generators.length; i++) {
+      if (loc.generators[i][2] === false) {
         j = false;
         break;
       }
@@ -576,198 +519,101 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       $scope.selectAll[0] = false;
     }
     j = 0;
-    for (i = 0; i < loc.investments.length; i++) {
-      if (loc.investments[i][1] < highestSharedLevel) {
-        highestSharedLevel = loc.investments[i][1];
+    for (i = 0; i < loc.generators.length; i++) {
+      if (loc.generators[i][1] < highestSharedLevel) {
+        highestSharedLevel = loc.generators[i][1];
       }
-      loc.investments[i][3] = loc.investments[i][1] * loc.baseProfit[i];
+      loc.generators[i][3] = loc.generators[i][1] * loc.baseProfit[i];
       if (loc.triples > 0 || loc.bonusMultiplier > 0 || loc.suits[suitFromName('gold')][0] || loc.suits[suitFromName('blue')][0]) {
-        loc.investments[i][3] *= (3 * loc.triples) + loc.bonusMultiplier + (loc.suits[suitFromName('gold')][0] ? $scope.suitList[suitFromName('gold')][1] : 0) + (loc.suits[suitFromName('blue')][0] ? $scope.suitList[suitFromName('blue')][1] : 0);
+        loc.generators[i][3] *= (3 * loc.triples) + loc.bonusMultiplier + (loc.suits[suitFromName('gold')][0] ? $scope.suitList[suitFromName('gold')][1] : 0) + (loc.suits[suitFromName('blue')][0] ? $scope.suitList[suitFromName('blue')][1] : 0);
       }
-      if (loc.investments[i][2]) {
-        loc.investments[i][3] *= $scope.selectAll[0] ? loc.platinumboost : 7.77;
+      if (loc.generators[i][2]) {
+        loc.generators[i][3] *= $scope.selectAll[0] ? loc.platinumboost : 7.77;
       }
-      loc.investments[i][4] = loc.baseSpeed[i];
+      loc.generators[i][4] = loc.baseSpeed[i];
       if (loc.flux > 0) {
-        loc.investments[i][4] /= (1 + loc.flux * 1.21);
+        loc.generators[i][4] /= (1 + loc.flux * 1.21);
       }
       if (loc.suits[suitFromName('white')][0]) {
-        loc.investments[i][4] /= 2;
+        loc.generators[i][4] /= 2;
       }
-      loc.upgradeCosts[i][0] = calcUnlockCost(loc, i, loc.investments[i][1], 1);
-      loc.upgradeCosts[i][2] = calcUnlockCost(loc, i, loc.investments[i][1], 10);
-      loc.upgradeCosts[i][4] = calcUnlockCost(loc, i, loc.investments[i][1], getDifferenceNBonus(loc, i, 1));
+      loc.upgradeCosts[i][0] = calcUnlockCost(loc, i, loc.generators[i][1], 1);
+      loc.upgradeCosts[i][2] = calcUnlockCost(loc, i, loc.generators[i][1], 10);
+      loc.upgradeCosts[i][4] = calcUnlockCost(loc, i, loc.generators[i][1], getDifferenceNBonus(loc, i, 1));
       loc.upgradeCosts[i][6] = calcUnlockCostAll(loc);
     }
-    for (i = 0; i < loc.cashUpgrades.length; i++) {
-      if (tupleIsActive(loc.cashUpgrades[i])) {
-        applyTuple(loc, loc.cashUpgrades[i]);
+    for (i = 0; i < loc.upgrades.length; i++) {
+      if (tupleIsActive(loc.upgrades[i])) {
+        applyTuple(loc, loc.upgrades[i]);
       }
     }
     applySuperBadge(loc);
-    for (i = 0; i < loc.angelUpgrades.length; i++) {
-      if (tupleIsActive(loc.angelUpgrades[i])) {
-        applyTuple(loc, loc.angelUpgrades[i]);
+    for (i = 0; i < loc.medals.length; i++) {
+      if (tupleIsActive(loc.medals[i])) {
+        applyTuple(loc, loc.medals[i]);
       }
     }
-    for (i = 0; i < loc.investments.length; i++) {
+    for (i = 0; i < loc.generators.length; i++) {
       j = 0;
-      while (j < loc.unlocks[i].length && loc.investments[i][1] >= loc.unlocks[i][j][0]) {
+      while (j < loc.unlocks[i].length && loc.generators[i][1] >= loc.unlocks[i][j][0]) {
         applyTuple(loc, loc.unlocks[i][j]);
         j++;
       }
     }
     j = 0;
-    while (j < loc.unlocks[loc.investments.length].length && highestSharedLevel >= loc.unlocks[loc.investments.length][j][0]) {
-      applyTuple(loc, loc.unlocks[loc.investments.length][j]);
+    while (j < loc.unlocks[loc.generators.length].length && highestSharedLevel >= loc.unlocks[loc.generators.length][j][0]) {
+      applyTuple(loc, loc.unlocks[loc.generators.length][j]);
       j++;
     }
     if (loc.bonusAngelEffectiveness > 0) {
       loc.angelEffectiveness += loc.bonusAngelEffectiveness;
     }
-    for (i = 0; i < loc.investments.length; i++) {
-      loc.investments[i][3] *= (1 + (loc.angelEffectiveness * loc.numAngels / 100));
-      loc.investments[i][5] = loc.investments[i][3] / loc.investments[i][4]
-      loc.totalMoneyPerSecond += loc.investments[i][5];
+    for (i = 0; i < loc.generators.length; i++) {
+      loc.generators[i][3] *= (1 + (loc.angelEffectiveness * loc.numScientists / 100));
+      loc.generators[i][5] = loc.generators[i][3] / loc.generators[i][4]
+      loc.comradesPerSecond += loc.generators[i][5];
     }
-    for (i = 0; i < loc.investments.length; i++) {
-      loc.investments[i][6] = loc.investments[i][5] * 100 / loc.totalMoneyPerSecond;
+    for (i = 0; i < loc.generators.length; i++) {
+      loc.generators[i][6] = loc.generators[i][5] * 100 / loc.comradesPerSecond;
     }
     for (i = 0; i < loc.upgradeCosts.length; i++) {
-      loc.upgradeCosts[i][1] = loc.upgradeCosts[i][0] / loc.totalMoneyPerSecond;
-      loc.upgradeCosts[i][3] = loc.upgradeCosts[i][2] / loc.totalMoneyPerSecond;
-      loc.upgradeCosts[i][5] = loc.upgradeCosts[i][4] / loc.totalMoneyPerSecond;
-      loc.upgradeCosts[i][7] = loc.upgradeCosts[i][6] / loc.totalMoneyPerSecond;
+      loc.upgradeCosts[i][1] = loc.upgradeCosts[i][0] / loc.comradesPerSecond;
+      loc.upgradeCosts[i][3] = loc.upgradeCosts[i][2] / loc.comradesPerSecond;
+      loc.upgradeCosts[i][5] = loc.upgradeCosts[i][4] / loc.comradesPerSecond;
+      loc.upgradeCosts[i][7] = loc.upgradeCosts[i][6] / loc.comradesPerSecond;
     }
-  };
-
-  function calcSuits(loc) {
-    var i = 0, max = [-1, 0],
-    tempPlanet = {};
-    loc.suitExclamation = false;
-    for (; i < loc.suits.length; i++) {
-      if (loc.suits[i][0] === false) {
-        tempPlanet = JSON.parse(JSON.stringify(loc));
-        tempPlanet.suits[i][0] = true;
-        $scope.changeSuits(tempPlanet, i);
-        calcState(tempPlanet);
-        var delta = tempPlanet.totalMoneyPerSecond - loc.totalMoneyPerSecond;
-        var percent = delta / loc.totalMoneyPerSecond;
-        if (delta > 0) {
-          loc.suits[i][1] = percent;
-          loc.suitExclamation = true;
-          if (percent > max[1]) {
-            max[0] = i;
-            max[1] = percent;
-          }
-        } else {
-          loc.suits[i][1] = false;
-        }
-      } else {
-        loc.suits[i][1] = false;
-      }
-    }
-    if (max[0] !== -1) {
-      loc.bestSuit = max[0];
-    } else {
-      loc.bestSuit = null;
-    }
-  };
-
-  function calcSuperBadges(loc) {
-    var i = 0, max = [-1, 0],
-    tempPlanet = {};
-    loc.badgeExclamation = false;
-    for (; i < loc.badges.length; i++) {
-      if (loc.badges[i][0] === false) {
-        tempPlanet = JSON.parse(JSON.stringify(loc));
-        tempPlanet.badges[i][0] = true;
-        $scope.changeBadge(tempPlanet, i);
-        calcState(tempPlanet);
-        var delta = tempPlanet.totalMoneyPerSecond - loc.totalMoneyPerSecond;
-        var percent = delta / loc.totalMoneyPerSecond;
-        if (delta > 0) {
-          loc.badges[i][1] = percent;
-          loc.badgeExclamation = true;
-          if (percent > max[1]) {
-            max[0] = i;
-            max[1] = percent;
-          }
-        } else {
-          loc.badges[i][1] = false;
-        }
-      } else {
-        loc.badges[i][1] = false;
-      }
-    }
-    if (max[0] !== -1) {
-      loc.bestBadge = max[0];
-    } else {
-      loc.bestBadge = null;
-    }
-  };
+  }
 
   function calcUpgradeScore(planet, loc, unlockCost) {
-    var overflowPotential = planet.totalMoneyPerSecond * unlockCost,
+    var overflowPotential = planet.comradesPerSecond * unlockCost,
     divNum = 0,
-    retVal = planet.totalMoneyPerSecond - loc.totalMoneyPerSecond;
+    retVal = planet.comradesPerSecond - loc.comradesPerSecond;
     if (!isFinite(unlockCost)) {
       return 0;
     }
     while (!isFinite(overflowPotential)) {
       divNum += 100;
-      overflowPotential = planet.totalMoneyPerSecond * (unlockCost / Number('1e+' + divNum));
+      overflowPotential = planet.comradesPerSecond * (unlockCost / Number('1e+' + divNum));
     }
     retVal *= 1000000000000000000000 / overflowPotential;
     if (divNum !== 0) {
       retVal *= Number('1e+' + divNum);
     }
     return retVal;
-  };
-
-  $scope.changePlatinum = function(loc, index) {
-    for (var i = 0; i < loc.platinum.length; i++) {
-      if (i !== index) {
-        loc.platinum[i][0] = false;
-      } else {
-        loc.platinum[i][0] = true;
-      }
-    }
-    loc.platinumboost = $scope.platinumboosts[index];
-  };
-
-  $scope.changeSuits = function(loc, index) {
-    for (var i = 0; i < loc.suits.length; i++) {
-      if (i !== index) {
-        loc.suits[i][0] = false;
-      } else {
-        loc.suits[i][1] = false;
-      }
-    }
-  };
-
-  $scope.changeBadge = function(loc,index) {
-    for (var i = 0; i < loc.badges.length; i++) {
-        if (i !== index) {
-            loc.badges[i][0] = false;
-        } else {
-            loc.badges[i][1] = false;
-        }
-    }
   }
 
   $scope.checkAngel = function(loc, index) {
     var i = 0;
-    loc.angelUpgrades[index][loc.angelUpgrades[index].length - 2] = false;
-    if ($scope.fillBefore[1] && loc.angelUpgrades[index][loc.angelUpgrades[index].length - 1] == true) {
+    loc.medals[index][loc.medals[index].length - 2] = false;
+    if ($scope.fillBefore[1] && loc.medals[index][loc.medals[index].length - 1] == true) {
       for (; i < index; i++) {
-        loc.angelUpgrades[i][loc.angelUpgrades[i].length - 1] = true;
-        loc.angelUpgrades[i][loc.angelUpgrades[i].length - 2] = false;
+        loc.medals[i][loc.medals[i].length - 1] = true;
+        loc.medals[i][loc.medals[i].length - 2] = false;
       }
     }
-    if ($scope.clearAfter[1] && loc.angelUpgrades[index][loc.angelUpgrades[index].length - 1] == false) {
-      for (i = index + 1; i < loc.angelUpgrades.length; i++) {
-        loc.angelUpgrades[i][loc.angelUpgrades[i].length - 1] = false;
+    if ($scope.clearAfter[1] && loc.medals[index][loc.medals[index].length - 1] == false) {
+      for (i = index + 1; i < loc.medals.length; i++) {
+        loc.medals[i][loc.medals[i].length - 1] = false;
       }
     }
     //calcAngels(loc);
@@ -775,14 +621,14 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
 
   $scope.checkCash = function(loc, index) {
     var i = 0;
-    if ($scope.fillBefore[0] && loc.cashUpgrades[index][loc.cashUpgrades[index].length - 1] == true) {
+    if ($scope.fillBefore[0] && loc.upgrades[index][loc.upgrades[index].length - 1] == true) {
       for (; i < index; i++) {
-        loc.cashUpgrades[i][loc.cashUpgrades[i].length - 1] = true;
+        loc.upgrades[i][loc.upgrades[i].length - 1] = true;
       }
     }
-    if ($scope.clearAfter[0] && loc.cashUpgrades[index][loc.cashUpgrades[index].length - 1] == false) {
-      for (i = index + 1; i < loc.cashUpgrades.length; i++) {
-        loc.cashUpgrades[i][loc.cashUpgrades[i].length - 1] = false;
+    if ($scope.clearAfter[0] && loc.upgrades[index][loc.upgrades[index].length - 1] == false) {
+      for (i = index + 1; i < loc.upgrades.length; i++) {
+        loc.upgrades[i][loc.upgrades[i].length - 1] = false;
       }
     }
   };
@@ -859,21 +705,21 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   function formatState(loc) {
     var string = '"' + loc.name + '": {\r\n  "levels": {\r\n',
     i = 0, j = 0, first = true;
-    for (; i < loc.investments.length; i++) {
+    for (; i < loc.generators.length; i++) {
       if (i !== 0) {
         string += ',\r\n';
       }
-      string += '    "' + loc.investments[i][0] + '": ' + loc.investments[i][1];
+      string += '    "' + loc.generators[i][0] + '": ' + loc.generators[i][1];
     }
-    string += '\r\n  },\r\n  "numAngels": ' + loc.numAngels + ',\r\n  "upgradeIndexUpTo": ';
-    for (i = 0; i < loc.cashUpgrades.length; i++) {
-      if (loc.cashUpgrades[i][loc.cashUpgrades[i].length - 1] === false) {
+    string += '\r\n  },\r\n  "numScientists": ' + loc.numScientists + ',\r\n  "upgradeIndexUpTo": ';
+    for (i = 0; i < loc.upgrades.length; i++) {
+      if (loc.upgrades[i][loc.upgrades[i].length - 1] === false) {
         break;
       }
     }
     string += i + ',\r\n  "upgradeIndexBonus": [';
-    for (; i < loc.cashUpgrades.length; i++) {
-      if (loc.cashUpgrades[i][loc.cashUpgrades[i].length - 1] === true) {
+    for (; i < loc.upgrades.length; i++) {
+      if (loc.upgrades[i][loc.upgrades[i].length - 1] === true) {
         if (first !== true) {
           string += ',\r\n'
         } else {
@@ -884,15 +730,15 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       }
     }
     string += '\r\n  ],\r\n  "angelUpgradeIndexUpTo": ';
-    for (i = 0; i < loc.angelUpgrades.length; i++) {
-      if (loc.angelUpgrades[i][loc.angelUpgrades[i].length - 1] === false) {
+    for (i = 0; i < loc.medals.length; i++) {
+      if (loc.medals[i][loc.medals[i].length - 1] === false) {
         break;
       }
     }
     first = true;
     string += i + ',\r\n  "angelUpgradeIndexBonus": [';
-    for (; i < loc.angelUpgrades.length; i++) {
-      if (loc.angelUpgrades[i][loc.angelUpgrades[i].length - 1] === true) {
+    for (; i < loc.medals.length; i++) {
+      if (loc.medals[i][loc.medals[i].length - 1] === true) {
         if (first !== true) {
           string += ',\r\n'
         } else {
@@ -904,9 +750,9 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     }
     first = true;
     string += '\r\n  ],\r\n  "managersBought": [';
-    for (i = 0; i < loc.managerUpgrades.length; i++) {
-      for (j = 0; j < loc.managerUpgrades[i].length; j++) {
-        if (loc.managerUpgrades[i][j][1] === true) {
+    for (i = 0; i < loc.industryExperiments.length; i++) {
+      for (j = 0; j < loc.industryExperiments[i].length; j++) {
+        if (loc.industryExperiments[i][j][1] === true) {
           if (first !== true) {
             string += ',\r\n'
           } else {
@@ -931,8 +777,8 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     }
     string += ',\r\n  "triples": ' + loc.triples + ',\r\n  "flux": ' + loc.flux + ',\r\n  "bonusAngelEffectiveness": ' + loc.bonusAngelEffectiveness + ',\r\n  "bonusMultiplier": ' + loc.bonusMultiplier + ',\r\n  "megaTicket": [';
     first = true;
-    for (i = 0; i < loc.investments.length; i++) {
-      if (loc.investments[i][2] === true) {
+    for (i = 0; i < loc.generators.length; i++) {
+      if (loc.generators[i][2] === true) {
         if (first !== true) {
           string += ',\r\n'
         } else {
@@ -944,20 +790,20 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     }
     string += '\r\n  ]\r\n}';
     return string;
-  };
+  }
 
   $scope.fullyResetPlanet = function(loc) {
     var i = 0;
-    for (; i < loc.cashUpgrades.length; i++) {
-      loc.cashUpgrades[i][loc.cashUpgrades[i].length - 1] = false;
+    for (; i < loc.upgrades.length; i++) {
+      loc.upgrades[i][loc.upgrades[i].length - 1] = false;
     }
-    for (i = 0; i < loc.angelUpgrades.length; i++) {
-      loc.angelUpgrades[i][loc.angelUpgrades[i].length - 1] = false;
+    for (i = 0; i < loc.medals.length; i++) {
+      loc.medals[i][loc.medals[i].length - 1] = false;
     }
-    for (i = 0; i < loc.managerUpgrades.length; i++) {
-      loc.managerUpgrades[i][0][loc.managerUpgrades[i][0].length - 1] = false;
-      if (angular.isDefined(loc.managerUpgrades[i][1])) {
-        loc.managerUpgrades[i][1][loc.managerUpgrades[i][1].length - 1] = false;
+    for (i = 0; i < loc.industryExperiments.length; i++) {
+      loc.industryExperiments[i][0][loc.industryExperiments[i][0].length - 1] = false;
+      if (angular.isDefined(loc.industryExperiments[i][1])) {
+        loc.industryExperiments[i][1][loc.industryExperiments[i][1].length - 1] = false;
       }
     }
     loc.angelEffectiveness = 2;
@@ -966,29 +812,29 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     loc.bonusAngelEffectiveness = 0;
     loc.bonusMultiplier = 0;
     loc.flux = 0;
-    loc.illions = '';
-    for (i = 0; i < loc.investments.length; i++) {
+    loc.comradesIllions = '';
+    for (i = 0; i < loc.generators.length; i++) {
       if (i === 0) {
-        loc.investments[i][1] = 1;
+        loc.generators[i][1] = 1;
       } else {
-        loc.investments[i][1] = 0;
+        loc.generators[i][1] = 0;
       }
-      loc.investments[i][2] = false;
+      loc.generators[i][2] = false;
     }
-    loc.numAngels = 0;
+    loc.numScientists = 0;
     loc.platinumboost = 17.77;
     $scope.changePlatinum(loc, 0);
     loc.rec = null;
     loc.recTable = [];
     loc.recommendation = '';
     loc.suitExclamation = false;
-    loc.totalMoneyPerSecond = 0;
+    loc.comradesPerSecond = 0;
     loc.triples = 0;
     loc.upgradeCosts = [];
-    for (var i = 0; i < loc.investments.length; i++) {
+    for (var i = 0; i < loc.generators.length; i++) {
       loc.upgradeCosts.push([0, 0, 0, 0, 0, 0, 0, 0]);
     }
-    loc.viewNumAngels = 0;
+    loc.viewNumScientists = 0;
     $scope.calc(loc);
   };
 
@@ -999,26 +845,26 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       return null;
     }
     for (; i < loc.unlocks[index].length; i++) {
-      if (loc.investments[index][1] < loc.unlocks[index][i][0]) {
+      if (loc.generators[index][1] < loc.unlocks[index][i][0]) {
         if (i + n - 1 < loc.unlocks[index].length) {
           retVal = loc.unlocks[index][i + n - 1][0];
           break;
         }
       }
     }
-    return (retVal === null) ? null : retVal - loc.investments[index][1];
-  };
+    return (retVal === null) ? null : retVal - loc.generators[index][1];
+  }
 
   function getJsonForExport() {
     var retString = '{';
-    for (var p in planets) {
+    for (var p in industries) {
       if (p !== '0') {
         retString += ',\r\n';
       }
-      retString += formatState($scope[planets[p]]);
+      retString += formatState($scope[industries[p]]);
     }
     return retString + '}';
-  };
+  }
 
   $scope.getNamedType = function(loc, tuple) {
     var i, j, k = '', l = 1, num;
@@ -1030,14 +876,14 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
         if (l !== 1) {
           k += ', ';
         }
-        if (i < loc.investments.length) {
-          k += loc.investments[i][0] + (j && ' Speed ' || ' Profit ') + num;
-        } else if (i === loc.investments.length) {
+        if (i < loc.generators.length) {
+          k += loc.generators[i][0] + (j && ' Speed ' || ' Profit ') + num;
+        } else if (i === loc.generators.length) {
           k += 'All' + (j && ' Speed ' || ' Profit ') + num;
-        } else if (i === loc.investments.length + 1) {
+        } else if (i === loc.generators.length + 1) {
           k += 'Angel Investor ' + num;
-        } else if (tuple[l][0] >= 30 && tuple[l][0] <= 29 + loc.investments.length) {
-          k += '+' + tuple[l][1] + ' ' + loc.investments[tuple[l][0] - 30][0];
+        } else if (tuple[l][0] >= 30 && tuple[l][0] <= 29 + loc.generators.length) {
+          k += '+' + tuple[l][1] + ' ' + loc.generators[tuple[l][0] - 30][0];
         }
       }
     }
@@ -1046,20 +892,20 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
 
   function getNextCashIndex(loc, index) {
     index += 1;
-    while (index < loc.cashUpgrades.length && tupleIsActive(loc.cashUpgrades[index])) {
+    while (index < loc.upgrades.length && tupleIsActive(loc.upgrades[index])) {
       index++;
     }
-    if (index === loc.cashUpgrades.length) {
+    if (index === loc.upgrades.length) {
       index = null;
     }
     return index;
-  };
+  }
 
   function getNextPositiveUnlock(loc, index) {
     var i = 0,
     retVal = 0;
     for (; i < loc.unlocks[index].length; i++) {
-      if (loc.investments[index][1] < loc.unlocks[index][i][0]) {
+      if (loc.generators[index][1] < loc.unlocks[index][i][0]) {
         retVal++;
         if (loc.unlocks[index][i][1][1] > 1) {
           return retVal;
@@ -1067,15 +913,6 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       }
     }
     return null;
-  };
-
-  $scope.getBadgeBonusInfo = function (loc, badge) {
-      var ret = '';
-      ret += badge[2][1]+'x on ';
-      ret += $scope[planets[badge[1]]].investments[badge[2][0] / 2][0];
-      if (badge[2][0] % 2 === 1)
-          ret += ' Speed';
-      return ret;
   }
 
   $scope.hideUpdate = function() {
@@ -1116,116 +953,116 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
 
   function indexOrder(input) {
     return input[$scope.sortIndex];
-  };
+  }
 
   $scope.isCompare = function() {
     return $scope.compare;
   };
 
   $scope.isEvent = function() {
-    return !$scope.isWorld('potatoes') && !$scope.isWorld('land') && !$scope.isWorld('ore') && !$scope.isWorld('weapons') && !$scope.isWorld('medicine');
+    return !$scope.isIndustry('potatoes') && !$scope.isIndustry('land') && !$scope.isIndustry('ore') && !$scope.isIndustry('weapons') && !$scope.isIndustry('medicine');
   };
 
-  $scope.isWorld = function(world) {
-    return $scope.ref == $scope[world];
+  $scope.isIndustry = function(world) {
+    return $scope.refIndustry == $scope[world];
   };
 
-  function lzf_decode(str) {
-    var iidx = 0, oidx = 0, oLen = str.length,
-    temp = Array.apply(null, new Array(oLen)).map(Number.prototype.valueOf, 0);
-    do {
-      var ctrl = str.charCodeAt(iidx++);
-      if (ctrl < (1 << 5)) {
-        ctrl++;
-        while (oidx + ctrl > oLen) {
-          oLen++;
-          temp.push(String.fromCharCode(0));
-        }
-        do {
-          temp[oidx++] = str.charAt(iidx++);
-        } while ((--ctrl) != 0);
-      } else {
-        var len = ctrl >> 5, reference = oidx - ((ctrl & 0x1f) << 8) - 1;
-        if (len == 7) {
-          len += str.charCodeAt(iidx++);
-        }
-        reference -= str.charCodeAt(iidx++);
-        while (oidx + len + 2 > oLen) {
-          oLen++;
-          temp.push(String.fromCharCode(0));
-        }
-        if (reference < 0) {
-          console.log('error');
-          return 0;
-        }
-        temp[oidx++] = temp[reference++];
-        do {
-          temp[oidx++] = temp[reference++];
-        } while ((--len) >= 0);
-      }
-    } while (iidx < $scope.lzfData.length);
-    return temp.join("");
-  }
+  // function lzf_decode(str) {
+  //   var iidx = 0, oidx = 0, oLen = str.length,
+  //   temp = Array.apply(null, new Array(oLen)).map(Number.prototype.valueOf, 0);
+  //   do {
+  //     var ctrl = str.charCodeAt(iidx++);
+  //     if (ctrl < (1 << 5)) {
+  //       ctrl++;
+  //       while (oidx + ctrl > oLen) {
+  //         oLen++;
+  //         temp.push(String.fromCharCode(0));
+  //       }
+  //       do {
+  //         temp[oidx++] = str.charAt(iidx++);
+  //       } while ((--ctrl) != 0);
+  //     } else {
+  //       var len = ctrl >> 5, reference = oidx - ((ctrl & 0x1f) << 8) - 1;
+  //       if (len == 7) {
+  //         len += str.charCodeAt(iidx++);
+  //       }
+  //       reference -= str.charCodeAt(iidx++);
+  //       while (oidx + len + 2 > oLen) {
+  //         oLen++;
+  //         temp.push(String.fromCharCode(0));
+  //       }
+  //       if (reference < 0) {
+  //         console.log('error');
+  //         return 0;
+  //       }
+  //       temp[oidx++] = temp[reference++];
+  //       do {
+  //         temp[oidx++] = temp[reference++];
+  //       } while ((--len) >= 0);
+  //     }
+  //   } while (iidx < $scope.lzfData.length);
+  //   return temp.join("");
+  // }
 
-  $scope.loadGame = function(str) {
-    var obj = JSON.parse(lzf_decode(atob(str))), i, id = 0;
-    for (i in obj.ventures) {
-      id = 0; // find the correct id from short somehow
-      loc.investments[i][1] = i.numOwned;
-      loc.investments[i][2] = i.isBoosted;
-    }
-    for (i in obj.upgrades) {
-      if (i.id.indexOf("_angel_") != -1) {
-        id = 0; // find the correct id from short somehow
-        loc.angelUpgrades[i][3] = i.purchased;
-      } else {
-        id = 0; // find the correct id from short somehow
-        loc.cashUpgrades[i][2] = i.purchased;
-      }
-    }
-    for (i in obj.upgrades) {
-      if (i.id.indexof("_accountant" != -1)) {
-        id = 0; // find the correct id from short somehow
-        loc.managerUpgrades[id][(i.id.charAt(i.id.length - 1) != '2') ? 0 : 1][1] = i.purchased;
-      }
-    }
-    loc.lifetimeEarnings = obj.totalCash || obj.sessionCash + obj.totalPreviousCash;
-    loc.numAngels = obj.angelInvestors;
-    loc.sacAngels = obj.angelInvestorsSpent;
-    // how to find gold multipliers, flux, bonus angel effectiveness (kong login etc), suits
-  };
+  // $scope.loadGame = function(str) {
+  //   var obj = JSON.parse(lzf_decode(atob(str))), i, id = 0;
+  //   for (i in obj.ventures) {
+  //     id = 0; // find the correct id from short somehow
+  //     loc.generators[i][1] = i.numOwned;
+  //     loc.generators[i][2] = i.isBoosted;
+  //   }
+  //   for (i in obj.upgrades) {
+  //     if (i.id.indexOf("_angel_") != -1) {
+  //       id = 0; // find the correct id from short somehow
+  //       loc.medals[i][3] = i.purchased;
+  //     } else {
+  //       id = 0; // find the correct id from short somehow
+  //       loc.upgrades[i][2] = i.purchased;
+  //     }
+  //   }
+  //   for (i in obj.upgrades) {
+  //     if (i.id.indexof("_accountant" != -1)) {
+  //       id = 0; // find the correct id from short somehow
+  //       loc.industryExperiments[id][(i.id.charAt(i.id.length - 1) != '2') ? 0 : 1][1] = i.purchased;
+  //     }
+  //   }
+  //   loc.lifetimeEarnings = obj.totalCash || obj.sessionCash + obj.totalPreviousCash;
+  //   loc.numScientists = obj.angelInvestors;
+  //   loc.sacAngels = obj.angelInvestorsSpent;
+  //   // how to find gold multipliers, flux, bonus angel effectiveness (kong login etc), suits
+  // };
 
   $scope.resetPlanet = function(loc) {
     var i = 0;
-    for (; i < loc.cashUpgrades.length; i++) {
-      loc.cashUpgrades[i][loc.cashUpgrades[i].length - 1] = false;
+    for (; i < loc.upgrades.length; i++) {
+      loc.upgrades[i][loc.upgrades[i].length - 1] = false;
     }
-    for (i = 0; i < loc.angelUpgrades.length; i++) {
-      loc.angelUpgrades[i][loc.angelUpgrades[i].length - 1] = false;
+    for (i = 0; i < loc.medals.length; i++) {
+      loc.medals[i][loc.medals[i].length - 1] = false;
     }
-    for (i = 0; i < loc.managerUpgrades.length; i++) {
-      loc.managerUpgrades[i][0][loc.managerUpgrades[i][0].length - 1] = false;
-      if (angular.isDefined(loc.managerUpgrades[i][1])) {
-        loc.managerUpgrades[i][1][loc.managerUpgrades[i][1].length - 1] = false;
+    for (i = 0; i < loc.industryExperiments.length; i++) {
+      loc.industryExperiments[i][0][loc.industryExperiments[i][0].length - 1] = false;
+      if (angular.isDefined(loc.industryExperiments[i][1])) {
+        loc.industryExperiments[i][1][loc.industryExperiments[i][1].length - 1] = false;
       }
     }
     loc.angelEffectiveness = 2;
     loc.angelExclamation = false;
     loc.bonusAngelEffectiveness = 0;
     loc.bonusMultiplier = 0;
-    for (i = 0; i < loc.investments.length; i++) {
+    for (i = 0; i < loc.generators.length; i++) {
       if (i === 0) {
-        loc.investments[i][1] = 1;
+        loc.generators[i][1] = 1;
       } else {
-        loc.investments[i][1] = 0;
+        loc.generators[i][1] = 0;
       }
     }
     loc.rec = null;
     loc.recTable = [];
     loc.recommendation = '';
-    loc.totalMoneyPerSecond = 0;
+    loc.comradesPerSecond = 0;
     loc.upgradeCosts = [];
-    for (var i = 0; i <= loc.investments.length; i++) {
+    for (var i = 0; i <= loc.generators.length; i++) {
       loc.upgradeCosts.push([0, 0, 0, 0, 0, 0, 0, 0]);
     }
     $scope.calc(loc);
@@ -1234,38 +1071,38 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   $scope.selectedAll = function(loc, index) {
     var i = 0;
     if (index === 0) {
-      for (i = 0; i < loc.investments.length; i++) {
-        loc.investments[i][2] = $scope.selectAll[0];
+      for (i = 0; i < loc.generators.length; i++) {
+        loc.generators[i][2] = $scope.selectAll[0];
       }
     } else if (index === 1) {
-      for (i = 0; i < loc.managerUpgrades.length; i++) {
-        loc.managerUpgrades[i][0][1] = $scope.selectAll[1];
+      for (i = 0; i < loc.industryExperiments.length; i++) {
+        loc.industryExperiments[i][0][1] = $scope.selectAll[1];
 /*        if ($scope.selectAll[2]) {
           $scope.selectAll[2] = false;
         }
-        loc.managerUpgrades[i][1][1] = $scope.selectAll[2];*/
+        loc.industryExperiments[i][1][1] = $scope.selectAll[2];*/
       }
     } else if (index === 2) {
-      for (i = 0; i < loc.managerUpgrades.length; i++) {
-        loc.managerUpgrades[i][1][1] = $scope.selectAll[2];
+      for (i = 0; i < loc.industryExperiments.length; i++) {
+        loc.industryExperiments[i][1][1] = $scope.selectAll[2];
 /*        if ($scope.selectAll[1]) {
           $scope.selectAll[1] = false;
         }
-        loc.managerUpgrades[i][0][1] = $scope.selectAll[1];*/
+        loc.industryExperiments[i][0][1] = $scope.selectAll[1];*/
       }
     } else if (index === 3) {
-      for (i = 0; i < loc.managerUpgrades.length; i++) {
-        loc.managerUpgrades[i][0][1] = $scope.selectAll[3];
+      for (i = 0; i < loc.industryExperiments.length; i++) {
+        loc.industryExperiments[i][0][1] = $scope.selectAll[3];
       }
     }
   };
 
-  $scope.setWorld = function(planet) {
+  $scope.setIndustry = function(industry) {
     $scope.clearAfter = [false, false];
     $scope.fillBefore = [false, false];
     $scope.compare = false;
-    $scope.ref = $scope[planet];
-    localStorage.setItem('refIndustry', planet);
+    $scope.refIndustry = $scope[industry];
+    localStorage.setItem('refIndustry', industry);
   };
 
   function suitFromName(name) {
@@ -1279,7 +1116,7 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   }
 
   $scope.toggleManagers = function(row, index) {
-    if ($scope.isWorld('potatoes')) {
+    if ($scope.isIndustry('potatoes')) {
       if (row[index][1] === true) {
         row[(index + 1) % 2][1] = false;
       }
@@ -1288,15 +1125,36 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
 
   function tupleIsActive(tuple) {
     return tuple[tuple.length - 1];
+  }
+
+  // $scope.updateAngels = function() {
+  //   updateIllionize('numScientists', 'viewNumScientists', 'comradesIllions');
+  // };
+
+  function updateCientificNumber(parent, varName, viewName, expName) {
+      var ret = parent[viewName];
+      ret *= Math.pow(10,parent[expName]);
+      parent[varName] = ret;
+  }
+
+  function updateCientificView(parent, varName, viewName, expName) {
+    if(parent[varName] < Number(1e+6)) {
+      parent[viewName] = parent[varName];
+      parent[expName] = 0;
+    } else {
+      var exp = Math.log(parent[varName]);
+      parent[viewName] = parent[varName] / Math.pow(10, exp);
+      parent[expName] = exp;
+    }
+  }
+
+  $scope.updateComrades = function() {
+    updateCientificNumber($scope, 'numComrades', 'viewNumComrades', 'viewExpComrades');
   };
 
-  $scope.updateAngels = function() {
-    updateIllionize('numAngels', 'viewNumAngels', 'illions');
-  };
-
-  $scope.updateEarnings = function() {
-    updateIllionize('lifetimeEarnings', 'viewLifetimeEarnings', 'angelIllions');
-  };
+  // $scope.updateEarnings = function() {
+  //   updateIllionize('lifetimeEarnings', 'viewLifetimeEarnings', 'scientistIllions');
+  // };
 
   $scope.updateFilterTime = function(loc) {
     if ($scope.filterTime.days === null && $scope.filterTime.hours === null && $scope.filterTime.minutes === null) {
@@ -1309,188 +1167,188 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     }
   };
 
-  function updateIllionize(varName, viewName, illionsName) {
-    if ($scope.ref[illionsName] === '') {
-      $scope.ref[varName] = $scope.ref[viewName];
-    } else {
-      $scope.ref[illionsName] = $scope.ref[illionsName].trim();
-      $scope.ref[illionsName] = $scope.ref[illionsName].charAt(0).toUpperCase() + $scope.ref[illionsName].slice(1).toLowerCase();
-      var index = $scope.illionsArray.indexOf(' ' + $scope.ref[illionsName]);
-      if (index !== -1) {
-        $scope.ref[varName] = $scope.ref[viewName] * Math.pow(10, 6 + (index * 3));
-      }
-    }
-  };
+  // function updateIllionize(varName, viewName, illionsName) {
+  //   if ($scope.refIndustry[illionsName] === '') {
+  //     $scope.refIndustry[varName] = $scope.refIndustry[viewName];
+  //   } else {
+  //     $scope.refIndustry[illionsName] = $scope.refIndustry[illionsName].trim();
+  //     $scope.refIndustry[illionsName] = $scope.refIndustry[illionsName].charAt(0).toUpperCase() + $scope.refIndustry[illionsName].slice(1).toLowerCase();
+  //     var index = $scope.illionsArray.indexOf(' ' + $scope.refIndustry[illionsName]);
+  //     if (index !== -1) {
+  //       $scope.refIndustry[varName] = $scope.refIndustry[viewName] * Math.pow(10, 6 + (index * 3));
+  //     }
+  //   }
+  // };
 
   function updateRecString(loc) {
     if (loc.rec[0] === 'all') {
       loc.recommendation = 'Buy all to level ' + loc.rec[1];
     } else if (loc.rec[0] === 'level') {
-      loc.recommendation = 'Buy ' + loc.investments[loc.rec[1]][0] + ' to level ' + loc.rec[2] + '.';
+      loc.recommendation = 'Buy ' + loc.generators[loc.rec[1]][0] + ' to level ' + loc.rec[2] + '.';
     } else {
       loc.recommendation = 'Buy ' + $filter('rec')(loc.recTable[0][0], loc) + ' Cash Upgrade.'
     }
+  }
+
+  // $scope.updateSacrificedAngels = function() {
+  //   updateIllionize('sacAngels', 'viewSacAngels', 'sacIllions');
+  // };
+
+  $scope.updateScientists = function() {
+    updateCientificNumber($scope, 'numScientists', 'viewNumScientists', 'viewExpScientists');
   };
 
-  $scope.updateSacrificedAngels = function() {
-    updateIllionize('sacAngels', 'viewSacAngels', 'sacIllions');
+  // function updateView(loc,varName, viewName, illionsName) {
+  //   if (loc[varName] < Number(1e+6)) {
+  //     loc[viewName] = loc[varName];
+  //     loc[illionsName] = '';
+  //   } else {
+  //     var filtered = numFilter(loc[varName]).split(' ');
+  //     loc[viewName] = Number(filtered[0]);
+  //     loc[illionsName] = filtered[1];
+  //   }
+  // }
+
+  $scope.updateViewComrades = function() {
+    updateCientificView($scope, 'numComrades', 'viewNumComrades', 'viewExpComrades');
   };
 
-  function updateView(loc,varName, viewName, illionsName) {
-    if (loc[varName] < Number(1e+6)) {
-      loc[viewName] = loc[varName];
-      loc[illionsName] = '';
-    } else {
-      var filtered = numFilter(loc[varName]).split(' ');
-      loc[viewName] = Number(filtered[0]);
-      loc[illionsName] = filtered[1];
+  $scope.updateViewScientists = function() {
+    updateCientificView($scope, 'numScientists', 'viewNumScientists', 'viewExpScientists');
+  };
+
+  // $scope.updateViewNumAngels = function (loc) {
+  //   updateView(loc,'numScientists', 'viewNumScientists', 'comradesIllions');
+  // };
+
+  /**
+   * Array generators: Each item is a non-base generator (e.g. Farmer, Commune, etc.)
+   * The ultimate generatos (e.g. Colony, Super Highway) don't fit in here, think about later...
+   * Each item:
+   * [<generatorName>, <amount>, <receipt? Array? Too long...>, <timeout>, <generatedID> (e.g. 0=potato, 1=farmer, etc.), <amountGenerated>, <amountGeneratedTotal=amountGenerated*amount>, <amountGeneratedPerSec=amountGeneratedTotal/timeout>
+   * Leave last two empty, calculate.
+   */
+  function loadDefaults() {
+    $scope.land.generators = [
+      ['Worker', 0, [], 3, 0, 3, 0, 0],
+      ['Blasting Site', 0, [], 6, 1, 12, 0, 0],
+      ['Clearcut', 0, [], 6, 2, 12, 0, 0],
+      ['Road', 0, [], 12, 3, 48, 0, 0],
+      ['Highway', 0, [], 15, 4, 75, 0, 0]
+    ];
+    $scope.medicine.generators = [
+      ['Nurse', 0, [], 15, 0, 15000, 0, 0],
+      ['Ambulance', 0, [], 30, 0, 1666667, 0, 0],
+      ['Field Hospital', 0, [], 60, 0, 1.85e10, 0, 0],
+      ['Clinic', 0, [], 120, 0, 2.06e14, 0, 0],
+      ['Hospital', 0, [], 240, 0, 2.29e17, 0, 0]
+    ];
+    $scope.ore.generators = [
+      ['Miner', 0, [], 7, 0, 7, 0, 0],
+      ['Mine', 0, [], 14, 1, 28, 0, 0],
+      ['Excavator', 0, [], 28, 2, 84, 0, 0],
+      ['Mega Mine', 0, [], 56, 3, 224, 0, 0],
+      ['Deep Bore', 0, [], 112, 4, 560, 0, 0]
+    ];
+    $scope.potatoes.generators = [
+      ['Farmer', 0, [], 1, 0, 1, 0, 0],
+      ['Commune', 0, [], 2, 1, 4, 0, 0],
+      ['Collective', 0, [], 3, 2, 9, 0, 0],
+      ['Plantation', 0, [], 4, 3, 16, 0, 0],
+      ['Hive', 0, [], 5, 4, 25, 0, 0]
+    ];
+    $scope.weapons.generators = [
+      ['Soldier', 0, [], 11, 0, 11, 0, 0],
+      ['Fireteam', 0, [], 22, 0, 520370, 0, 0],
+      ['Squad', 0, [], 44, 0, 4.4e11, 0, 0],
+      ['Platoon', 0, [], 88, 0, 8.8e16, 0, 0],
+      ['Division', 0, [], 176, 0, 1.76e24, 0, 0]
+    ];
+    for (var p in industries) {
+      // $scope[industries[p]].scientistIllions = '';
+      // $scope[industries[p]].comradesIllions = '';
+      $scope[industries[p]].name = industries[p];
+      // $scope[industries[p]].noSingles = false;
+      // $scope[industries[p]].noTens = false;
+      // $scope[industries[p]].noHundreds = false;
+      // $scope[industries[p]].rec = null;
+      // $scope[industries[p]].recTable = [];
+      // $scope[industries[p]].recommendation = '';
+      $scope[industries[p]].resourceAmountPerClick = 1;
+      $scope[industries[p]].unlocks = [];
+      // $scope[industries[p]].upgradeCosts = [];
+      // for (var i = 0; i <= $scope[industries[p]].generators.length; i++) {
+      //   $scope[industries[p]].upgradeCosts.push([0, 0, 0, 0, 0, 0, 0, 0]);
+      //   $scope[industries[p]].unlocks.push([]);
+      // }
     }
   }
 
-  $scope.updateViewNumAngels = function (loc) {
-    updateView(loc,'numAngels', 'viewNumAngels', 'illions');
-  };
-
-  function loadDefaults() {
-    $scope.land.managerName = 'Workers';
-    $scope.land.investments = [
-      ['Blasting Sites', 0, false, 0, 0, 0, 0],
-      ['Clearcuts', 0, false, 0, 0, 0, 0],
-      ['Road', 0, false, 0, 0, 0, 0],
-      ['Highway', 0, false, 0, 0, 0, 0],
-      ['Super Highway', 0, false, 0, 0, 0, 0]
-    ];
-    $scope.medicine.managerName = 'Nurses';
-    $scope.medicine.investments = [
-      ['Ambulances', 0, false, 0, 0, 0, 0],
-      ['Field Hospital', 0, false, 0, 0, 0, 0],
-      ['Clinic', 0, false, 0, 0, 0, 0],
-      ['Hospital', 0, false, 0, 0, 0, 0],
-      ['Cloning Lab', 0, false, 0, 0, 0, 0]
-    ];
-    $scope.ore.managerName = 'Miners';
-    $scope.ore.investments = [
-      ['Mines', 0, false, 0, 0, 0, 0],
-      ['Excavator', 0, false, 0, 0, 0, 0],
-      ['Mega Mine', 0, false, 0, 0, 0, 0],
-      ['Deep Bore', 0, false, 0, 0, 0, 0],
-      ['Mega Drill', 0, false, 0, 0, 0, 0]
-    ];
-    $scope.potatoes.managerName = 'Farmers';
-    $scope.potatoes.investments = [
-      ['Communes', 0, false, 0, 0, 0, 0],
-      ['Collectives', 0, false, 0, 0, 0, 0],
-      ['Plantation', 0, false, 0, 0, 0, 0],
-      ['Hive', 0, false, 0, 0, 0, 0],
-      ['Colony', 0, false, 0, 0, 0, 0]
-    ];
-    $scope.weapons.managerName = 'Soldiers';
-    $scope.weapons.investments = [
-      ['Fireteams', 0, false, 0, 0, 0, 0],
-      ['Squad', 0, false, 0, 0, 0, 0],
-      ['Platoon', 0, false, 0, 0, 0, 0],
-      ['Division', 0, false, 0, 0, 0, 0],
-      ['Communist Ideal', 0, false, 0, 0, 0, 0]
-    ];
-    for (var p in planets) {
-      $scope[planets[p]].angelIllions = '';
-      $scope[planets[p]].illions = '';
-      $scope[planets[p]].name = planets[p];
-      $scope[planets[p]].noSingles = false;
-      $scope[planets[p]].noTens = false;
-      $scope[planets[p]].noHundreds = false;
-      $scope[planets[p]].numAngels = 0;
-      // $scope[planets[p]].platinum = [];
-      // for (var i = 0; i < $scope.platinumboosts.length; i++) {
-        // $scope[planets[p]].platinum.push(i === 0 ? [true] : [false]);
-      // }
-      $scope[planets[p]].rec = null;
-      $scope[planets[p]].recTable = [];
-      $scope[planets[p]].recommendation = '';
-      $scope[planets[p]].sacAngels = 0;
-      $scope[planets[p]].sacIllions = '';
-      $scope[planets[p]].totalMoneyPerSecond = 0;
-      $scope[planets[p]].unlocks = [];
-      $scope[planets[p]].viewLifetimeEarnings = 0;
-      $scope[planets[p]].viewNumAngels = 0;
-      $scope[planets[p]].viewSacAngels = 0;
-      $scope[planets[p]].upgradeCosts = [];
-      for (var i = 0; i <= $scope[planets[p]].investments.length; i++) {
-        $scope[planets[p]].upgradeCosts.push([0, 0, 0, 0, 0, 0, 0, 0]);
-        $scope[planets[p]].unlocks.push([]);
-      }
-    }
-  };
-
+  /**
+   * Array industryExperiments:
+   * Each item
+   * [<generatorID> (e.g. 0=potato, 1=farmer), <multiplier>, <scientistsObtained>, <researched>]
+   *
+   * Array medals: I assume that once the user obtains the medal, he will claim the scientists.
+   * If selected manually, the user will need to manually input the scientists added;
+   * If achieved by recommendation table, make it automatic
+   * Each item:
+   * [<generatorID> (e.g. 0=potato, 1=farmer), <milestone>, <scientistsObtained>, <claimed>]
+   *
+   * Array unlocks: each index is one unlock
+   * Array index item:
+   * [<generatorID> (e.g. Farmer, Commune, etc.), <amountToUnlock>, <increaseOnComradesPerSec>, <obtained>]
+   *
+   * Array upgrades: Placed 10 upgrade/line. Inittialy placed 30 levels, don't know yet how many upgrades there are...
+   * Each item:
+   * [<cost>, <multiplier=7>, <bought>]
+   */
   function loadUnlocks() {
-    $scope.potatoes.unlocks[0] = [];
-    $scope.potatoes.unlocks[1] = [];
-    $scope.potatoes.unlocks[2] = [];
-    $scope.potatoes.unlocks[3] = [];
-    $scope.potatoes.unlocks[4] = [];
-    $scope.potatoes.unlocks[5] = [];
-    $scope.potatoes.unlocks[6] = [];
-    $scope.potatoes.unlocks[7] = [];
-    $scope.potatoes.unlocks[8] = [];
-    $scope.potatoes.unlocks[9] = [];
-    $scope.potatoes.unlocks[10] = [];
-    $scope.potatoes.cashUpgrades = [];
-    $scope.potatoes.angelUpgrades = [];
-    $scope.potatoes.managerUpgrades = [];
-    $scope.weapons.unlocks[0] = [];
-    $scope.weapons.unlocks[1] = [];
-    $scope.weapons.unlocks[2] = [];
-    $scope.weapons.unlocks[3] = [];
-    $scope.weapons.unlocks[4] = [];
-    $scope.weapons.unlocks[5] = [];
-    $scope.weapons.unlocks[6] = [];
-    $scope.weapons.unlocks[7] = [];
-    $scope.weapons.unlocks[8] = [];
-    $scope.weapons.unlocks[9] = [];
-    $scope.weapons.cashUpgrades = [];
-    $scope.weapons.angelUpgrades = [];
-    $scope.weapons.managerUpgrades = [];
-    $scope.land.unlocks[0] = [];
-    $scope.land.unlocks[1] = [];
-    $scope.land.unlocks[2] = [];
-    $scope.land.unlocks[3] = [];
-    $scope.land.unlocks[4] = [];
-    $scope.land.unlocks[5] = [];
-    $scope.land.unlocks[6] = [];
-    $scope.land.unlocks[7] = [];
-    $scope.land.unlocks[8] = [];
-    $scope.land.unlocks[9] = [];
-    $scope.land.unlocks[10] = [];
-    $scope.land.cashUpgrades = [];
-    $scope.land.angelUpgrades = [];
-    $scope.land.managerUpgrades = [];
-    $scope.medicine.unlocks[0] = [];
-    $scope.medicine.unlocks[1] = [];
-    $scope.medicine.unlocks[2] = [];
-    $scope.medicine.unlocks[3] = [];
-    $scope.medicine.unlocks[4] = [];
-    $scope.medicine.unlocks[5] = [];
-    $scope.medicine.unlocks[6] = [];
-    $scope.medicine.unlocks[7] = [];
-    $scope.medicine.unlocks[8] = [];
-    $scope.medicine.unlocks[9] = [];
-    $scope.medicine.cashUpgrades = [];
-    $scope.medicine.angelUpgrades = [];
-    $scope.medicine.managerUpgrades = [];
-    $scope.ore.unlocks[0] = [];
-    $scope.ore.unlocks[1] = [];
-    $scope.ore.unlocks[2] = [];
-    $scope.ore.unlocks[3] = [];
-    $scope.ore.unlocks[4] = [];
-    $scope.ore.unlocks[5] = [];
-    $scope.ore.unlocks[6] = [];
-    $scope.ore.unlocks[7] = [];
-    $scope.ore.unlocks[8] = [];
-    $scope.ore.unlocks[9] = [];
-    $scope.ore.cashUpgrades = [];
-    $scope.ore.angelUpgrades = [];
-    $scope.ore.managerUpgrades = [];
-  };
+    $scope.land.industryExperiments = [[0, 15, 5], [1, 3, 10], [2, 3, 25], [3, 3, 100], [4, 3, 500], [5, 3, 2000]];
+    $scope.land.medals = [[0, 1e6, 1, false], [0, 1e30, 1, false], [0, 1e75, 1, false],
+        [1, 1e6, 2, false], [1, 1e30, 2, false], [1, 1e75, 2, false],
+        [2, 1e6, 3, false], [2, 1e30, 3, false], [2, 1e75, 3, false],
+        [3, 1e6, 4, false], [3, 1e30, 4, false], [3, 1e75, 4, false],
+        [4, 1e6, 5, false], [4, 1e30, 5, false], [4, 1e75, 5, false],
+        [5, 1e6, 6, false], [5, 1e30, 6, false], [5, 1e75, 6, false]
+    ];
+    $scope.land.unlocks = [[0, 500, 1, false], [0, 5e5, 1, false], [0, 5e8, 1, false], [0, 5e11, 1, false],
+        [1, 500, 1, false], [1, 5e5, 1, false], [1, 5e8, 1, false], [1, 5e11, 1, false],
+        [2, 500, 1, false], [2, 5e5, 1, false], [2, 5e8, 1, false], [2, 5e11, 1, false],
+        [3, 500, 1, false], [3, 5e5, 1, false], [3, 5e8, 1, false], [3, 5e11, 1, false],
+        [4, 500, 1, false], [4, 5e5, 1, false], [4, 5e8, 1, false], [4, 5e11, 1, false]];
+    $scope.land.upgrades = [[40, 7, false], [8.4e2, 7, false], [1.76e4, 7, false], [3.7e5, 7, false], [7.78e6, 7, false], [1.63e8, 7, false], [3.43e9, 7, false],[7.20e10, 7, false], [1.51e12, 7, false],
+        [3.18e13, 7, false], [6.67e14, 7, false], [1.40e16, 7, false], [2.94e17, 7, false], [6.18e18, 7, false], [1.30e20, 7, false], [2.72e21, 7, false], [5.72e22, 7, false], [1.20e24, 7, false], [2.52e25, 7, false],
+        [5.30e26, 7, false], [1.11e28, 7, false], [2.34e29, 7, false], [4.91e30, 7, false], [1.03e32, 7, false], [2.16e33, 7, false], [4.55e34, 7, false], [9.54e35, 7, false], [2.00e37, 7, false], [4.21e38, 7, false]];
+    $scope.medicine.industryExperiments = [];
+    $scope.medicine.medals = [];
+    $scope.medicine.unlocks = [];
+    $scope.medicine.upgrades = [];
+    $scope.ore.industryExperiments = [];
+    $scope.ore.medals = [];
+    $scope.ore.unlocks = [];
+    $scope.ore.upgrades = [];
+    $scope.potatoes.industryExperiments = [[0, 15, 5], [1, 3, 10], [2, 3, 25], [3, 3, 100], [4, 3, 500], [5, 3, 2000]];
+    $scope.potatoes.medals = [[0, 1e6, 1, false], [0, 1e30, 1, false], [0, 1e75, 1, false],
+        [1, 1e6, 2, false], [1, 1e30, 2, false], [1, 1e75, 2, false],
+        [2, 1, 3, false], [2, 1e30, 3, false], [2, 1e75, 3, false],
+        [3, 1, 4, false], [3, 1e30, 4, false], [3, 1e75, 4, false],
+        [4, 1, 5, false], [4, 1e30, 5, false], [4, 1e75, 5, false],
+        [5, 1, 6, false], [5, 1e30, 6, false], [5, 1e75, 6, false]
+    ];
+    $scope.potatoes.unlocks = [[0, 1000, 1, false], [0, 1e6, 1, false], [0, 1e9, 1, false], [0, 1e12, 1, false],
+        [1, 1000, 2, false], [1, 1e6, 2, false], [1, 1e9, 2, false], [1, 1e12, 2, false],
+        [2, 500, 3, false], [2, 5e5, 3, false], [2, 5e8, 3, false], [2, 5e11, 3, false],
+        [3, 1000, 4, false], [3, 1e6, 4, false], [3, 1e9, 4, false], [3, 1e12, 4, false],
+        [4, 1000, 5, false], [4, 1e6, 5, false], [4, 1e9, 5, false], [4, 1e12, 5, false]];
+    $scope.potatoes.upgrades = [[30, 7, false], [6.30e02, 7, false], [1.32e04, 7, false], [2.78e05, 7, false], [5.83e06, 7, false], [1.23e08, 7, false], [2.57e09, 7, false], [5.40e10, 7, false], [1.13e12, 7, false],
+        [2.38e13, 7, false], [5.00e14, 7, false], [1.05e16, 7, false], [2.21e17, 7, false], [4.63e18, 7, false], [9.73e19, 7, false], [2.04e21, 7, false], [4.29e22, 7, false], [9.01e23, 7, false], [1.89e25, 7, false],
+        [3.97e26, 7, false], [8.35e27, 7, false], [1.75e29, 7, false], [3.68e30, 7, false], [7.73e31, 7, false], [1.62e33, 7, false], [3.41e34, 7, false], [7.16e35, 7, false], [1.50e37, 7, false], [3.16e38, 7, false]];
+    $scope.weapons.industryExperiments = [];
+    $scope.weapons.medals = [];
+    $scope.weapons.unlocks = [];
+    $scope.weapons.upgrades = [];
+  }
   loadDefaults();
   loadUnlocks();
 }]);

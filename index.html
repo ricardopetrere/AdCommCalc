@@ -34,39 +34,41 @@
         </div>
       </div>
       <div class="form-inline">
-        <input type="number" style="width:100px" class="form-control" min="0" step="0.001" required> E+<input type="number" style="width:70px" class="form-control" max="308" min="0" required> # Comrades
-        <br><input type="number" style="width:100px" class="form-control" min="0" step="0.001" required> E+<input type="number" style="width:70px" class="form-control" max="308" min="0" required> # Scientists
+        <input type="number" class="form-control" data-ng-model="viewNumComrades" data-ng-blur="updateComrades()" style="width:100px" max="999.999" min="0" step="0.001" required>
+        E+<input type="number" class="form-control" data-ng-model="viewExpComrades" data-ng-blur="updateComrades()" style="width:70px" max="308" min="0" required> # Comrades
+        <br><input type="number" class="form-control" data-ng-model="viewNumScientists" data-ng-blur="updateScientists()" style="width:100px" max="999.999" min="0" step="0.001" required>
+        E+<input type="number" class="form-control" data-ng-model="viewExpScientists" data-ng-blur="updateScientists()" style="width:70px" max="308" min="0" required> # Scientists
       </div>
       <div class="row">
         <div class="col-xs-12 bottom-margin">
           <ul class="nav nav-tabs nav-justified">
-            <li role="presentation" data-ng-class="{active: !isCompare() && isWorld('potatoes')}"><a data-ng-click="setWorld('potatoes')">Potatoes <br>
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('potatoes')}"><a data-ng-click="setIndustry('potatoes')">Potatoes <br>
               <div class="form-inline">
-                (<input type="number" style="width:100px" class="form-control" min="0" step="0.001" required>
+                (<input type="number" style="width:100px" class="form-control" max="999.999" min="0" step="0.001" required>
                 E+<input type="number" style="width:70px" class="form-control" max="308" min="0" required>)
               </div>
             </a></li>
-            <li role="presentation" data-ng-class="{active: !isCompare() && isWorld('land')}"><a data-ng-click="setWorld('land')">Land <br>
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('land')}"><a data-ng-click="setIndustry('land')">Land <br>
               <div class="form-inline">
-                (<input type="number" style="width:100px" class="form-control" min="0" step="0.001" required>
+                (<input type="number" style="width:100px" class="form-control" max="999.999" min="0" step="0.001" required>
                 E+<input type="number" style="width:70px" class="form-control" max="308" min="0" required>)
               </div>
             </a></li>
-            <li role="presentation" data-ng-class="{active: !isCompare() && isWorld('ore')}"><a data-ng-click="setWorld('ore')">Ore <br>
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('ore')}"><a data-ng-click="setIndustry('ore')">Ore <br>
               <div class="form-inline">
-                (<input type="number" style="width:100px" class="form-control" min="0" step="0.001" required>
+                (<input type="number" style="width:100px" class="form-control" max="999.999" min="0" step="0.001" required>
                 E+<input type="number" style="width:70px" class="form-control" max="308" min="0" required>)
               </div>
             </a></li>
-            <li role="presentation" data-ng-class="{active: !isCompare() && isWorld('weapons')}"><a data-ng-click="setWorld('weapons')">Weapons <br>
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('weapons')}"><a data-ng-click="setIndustry('weapons')">Weapons <br>
               <div class="form-inline">
-                (<input type="number" style="width:100px" class="form-control" min="0" step="0.001" required>
+                (<input type="number" style="width:100px" class="form-control" max="999.999" min="0" step="0.001" required>
                 E+<input type="number" style="width:70px" class="form-control" max="308" min="0" required>)
               </div>
             </a></li>
-            <li role="presentation" data-ng-class="{active: !isCompare() && isWorld('medicine')}"><a data-ng-click="setWorld('medicine')">Medicine <br>
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('medicine')}"><a data-ng-click="setIndustry('medicine')">Medicine <br>
               <div class="form-inline">
-                (<input type="number" style="width:100px" class="form-control" min="0" step="0.001" required>
+                (<input type="number" style="width:100px" class="form-control" max="999.999" min="0" step="0.001" required>
                 E+<input type="number" style="width:70px" class="form-control" max="308" min="0" required>)
               </div>
             </a></li>
@@ -76,9 +78,7 @@
       <div class="row">
         <div class="col-sm-8">
           <div class="form-inline">
-            Amount gained per click: #XXX<br>
-            <input type="number" style="width:100px" class="form-control" min="0" step="0.001" required>
-                E+<input type="number" style="width:70px" class="form-control" max="308" min="0" required> # {{ref.managerName}}
+            {{refIndustry.resourceAmountPerClick}} {{refIndustry.name}} / click<br>
           </div>
           <div class="col-xs-12">
             <table class="table table-striped table-hover table-bordered space_top">
@@ -94,9 +94,9 @@
                 </tr>
               </thead>
               <tbody>
-                <tr data-ng-repeat="inv in ref.investments track by $index">
+                <tr data-ng-repeat="inv in refIndustry.generators track by $index">
                   <td>{{inv[0]}}</td>
-                  <td><input type="number" class="form-control" min="0" data-ng-model="inv[1]"></td>
+                  <td><input type="number" class="form-control" max="999.999" min="0" data-ng-model="inv[1]"></td>
                   <td></td>
                   <td></td>
                   <td></td>
@@ -106,6 +106,53 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <uib-accordion close-others="false">
+            <uib-accordion-group is-open="accOpen[0]">
+              <uib-accordion-heading ng-click="accOpen[0] = !accOpen[0]">
+                <div class="clickable-panel">
+                  Unlocks
+                </div>
+              </uib-accordion-heading>
+              <div class="well">
+                <div class="row text-center">
+                  <div class="form-inline col-md-3 col-md-offset-3">
+                    <label><input type="checkbox" class="form-inline" data-ng-model="fillBefore[0]"> Buy All Before Selection (Inclusive)</label>
+                  </div>
+                  <div class="form-inline col-md-3">
+                    <label><input type="checkbox" class="form-inline" data-ng-model="clearAfter[0]"> Clear All After Selection (Inclusive)</label>
+                  </div>
+                </div>
+              </div>
+              <div class="multicolumn">
+                <div data-ng-repeat="cupg in ref.cashUpgrades track by $index"><label class="strike-when-checked"><input type="checkbox" class="form-inline" data-ng-model="cupg[2]" data-ng-change="checkCash(ref, $index)"> <span>{{getNamedType(ref, cupg)}} (${{cupg[0] | num:raw}})</span></label></div>
+              </div>
+            </uib-accordion-group>
+            <uib-accordion-group is-open="accOpen[1]">
+              <uib-accordion-heading ng-click="accOpen[1] = !accOpen[1]">
+                <div class="clickable-panel">
+                  Medals
+                </div>
+              </uib-accordion-heading>
+            </uib-accordion-group>
+            <uib-accordion-group is-open="accOpen[2]">
+              <uib-accordion-heading ng-click="accOpen[2] = !accOpen[2]">
+                <div class="clickable-panel">
+                  Upgrades
+                </div>
+              </uib-accordion-heading>
+            </uib-accordion-group>
+            <uib-accordion-group is-open="accOpen[3]">
+              <uib-accordion-heading ng-click="accOpen[3] = !accOpen[3]">
+                <div class="clickable-panel">
+                  Experiments
+                </div>
+              </uib-accordion-heading>
+            </uib-accordion-group>
+          </uib-accordion>
         </div>
       </div>
     </div>
