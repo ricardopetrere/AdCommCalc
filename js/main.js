@@ -3,6 +3,32 @@
 var advApp = angular.module('advApp', ['ui.bootstrap', 'ngAnimate']),
 illionsArr = ['', ' Million', ' Billion', ' Trillion', ' Quadrillion', ' Quintillion', ' Sextillion', ' Septillion', ' Octillion', ' Nonillion', ' Decillion', ' Undecillion', ' Duodecillion', ' Tredecillion', ' Quattuordecillion', ' Quindecillion', ' Sexdecillion', ' Septendecillion', ' Octodecillion', ' Novemdecillion', ' Vigintillion', ' Unvigintillion', ' Duovigintillion', ' Tresvigintillion', ' Quattuorvigintillion', ' Quinvigintillion', ' Sexvigintillion', ' Septenvigintillion', ' Octovigintillion', ' Novemvigintillion', ' Trigintillion', ' Untrigintillion', ' Duotrigintillion', ' Tretrigintillion', ' Quattuortrigintillion', ' Quintrigintillion', ' Sextrigintillion', ' Septentrigintillion', ' Octotrigintillion', ' Novemtrigintillion', ' Quadragintillion', ' Unquadragintillion', ' Duoquadragintillion', ' Trequadragintillion', ' Quattuorquadragintillion', ' Quinquadragintillion', ' Sexquadragintillion', ' Septquadragintillion', ' Octoquadragintillion', ' Novemquadragintillion', ' Quinquagintillion', ' Unquinquagintillion', ' Duoquinquagintillion', ' Trequinquagintillion', ' Quattuorquinquagintillion', ' Quinquinquagintillion', ' Sexquinquagintillion', ' Septquinquagintillion', ' Octoquinquagintillion', ' Novemquinquagintillion', ' Sexagintillion', ' Unsexagintillion', ' Duosexagintillion', ' Tresexagintillion', ' Quattuorsexagintillion', ' Quinsexagintillion', ' Sexsexagintillion', ' Septsexagintillion', ' Octosexagintillion', ' Novemsexagintillion', ' Septuagintillion', ' Unseptuagintillion', ' Duoseptuagintillion', ' Treseptuagintillion', ' Quattuorseptuagintillion', ' Quinseptuagintillion', ' Sexseptuagintillion', ' Septseptuagintillion', ' Octoseptuagintillion', ' Novemseptuagintillion', ' Octogintillion', ' Unoctogintillion', ' Duooctogintillion', ' Treoctogintillion', ' Quattuoroctogintillion', ' Quinoctogintillion', ' Sexoctogintillion', ' Septoctogintillion', ' Octooctogintillion', ' Novemoctogintillion', ' Nonagintillion', ' Unnonagintillion', ' Duononagintillion', ' Trenonagintillion', ' Quattuornonagintillion', ' Quinnonagintillion', ' Sexnonagintillion', ' Septnonagintillion', ' Onctononagintillion', ' Novemnonagintillion', ' Centillion', ' Uncentillion'];
 
+function expFilter(input) {
+  var out = "",
+  mCount = 0,
+  e = 6;
+  if (input === Infinity) {
+    return "Infinity";
+  } else if (input !== null) {
+    // var exp = Math.floor(Math.log10(input));//Math.log10 is not available in some mobile browsers
+    // var out = "";
+    // if (exp >= 6) {
+    //   out += (input / Math.pow(10, exp));
+    //   out += 'E+' + exp;
+    // } else {
+    //   out = input;
+    // }
+    // return out;
+    if (input >= Number(1e6)) {
+      out = input.toExponential(2);
+      out = out.replace('e','E');//Just to look like in-game
+    } else {
+      out = input;
+    }
+    return out;
+  }
+}
+
 function numFilter(input) {
   var out = "",
   mCount = 0,
@@ -55,7 +81,8 @@ advApp.filter('time', function() {
 
 advApp.filter('num', function() {
   return function(input) {
-    return numFilter(input);
+    // return numFilter(input);
+    return expFilter(input);
   };
 });
 
@@ -90,16 +117,32 @@ advApp.filter('rec', function() {
 });
 
 advApp.controller('advController', ['$document', '$filter', '$scope', function($document, $filter, $scope) {
-  //
-  $scope.accOpen = [false, false, false, false, false];
+  //Unlocks, Medals, Upgrades, Experiments
+  $scope.accOpen = [false, false, false, false];
   //
   $scope.accOpen2 = [false, false];
-  // $scope.clearAfter = [false, false];
+  //[<timeout>, <cost>, <timesBought>]
+  $scope.autoClicker = [5, 25, 0];
+  $scope.clearAfter = [false];
   $scope.compare = false;
   $scope.comradesPerSecond = 1;
-  // $scope.fillBefore = [false, false];
+  $scope.fillBefore = [false];
   // $scope.filterTime = {'days': null, 'hours': null, 'minutes': null, 'percentage': null};
   $scope.illionsArray = illionsArr.slice(1);
+  /**
+   * Array industryExperiments:
+   * Each item
+   * [<industryID> (e.g. 0=potatoes, 1=land), <generatorID> (e.g. -1=potato, 0=farmer), <multiplier>, <scientistsObtained>, <researched>]
+   *
+   */
+  $scope.industryExperiments = [
+      [0, -1, 15, 5, false], [1, -1, 15, 5, false],  [2, -1, 15, 5, false], [3, -1, 15, 5, false], [4, -1, 15, 5, false],
+      [0, 0, 3, 10, false], [1, 0, 3, 10, false], [2, 0, 3, 10, false], [3, 0, 3, 10, false], [4, 0, 3, 10, false],
+      [0, 1, 3, 25, false], [1, 1, 3, 25, false], [2, 1, 3, 25, false], [3, 1, 3, 25, false], [4, 1, 3, 25, false],
+      [0, 2, 3, 100, false], [1, 2, 3, 100, false], [2, 2, 3, 100, false], [3, 2, 3, 100, false], [4, 2, 3, 100, false],
+      [0, 3, 3, 500, false], [1, 3, 3, 500, false], [2, 3, 3, 500, false], [3, 3, 3, 500, false], [4, 3, 3, 500, false],
+      [0, 4, 3, 2000, false], [1, 4, 3, 2000, false], [2, 4, 3, 2000, false], [3, 4, 3, 2000, false], [4, 4, 3, 2000, false]
+  ];
   $scope.land = {};
   $scope.medicine = {};
   $scope.ore = {};
@@ -108,6 +151,20 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   $scope.numComrades = 0;
   $scope.numScientists = 0;
   $scope.self = $scope;
+  /**
+   * Array stateExperiments:
+   * Here I exclude Auto Clicker, because it is simpler to place it separately
+   * Each item
+   * [<multiplier>, <cost>, <timesBought>]
+   */
+  $scope.stateExperiments = [
+    [3, 25, 0],
+    [9, 100, 0],
+    [36, 500, 0],
+    [99, 2500, 0],
+    [999, 10000, 0]
+  ];
+  $scope.totalProfitMultiplier = 0;
   $scope.viewNumComrades = 0;
   $scope.viewExpComrades = 0;
   $scope.viewNumScientists = 0;
@@ -855,6 +912,21 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     return (retVal === null) ? null : retVal - loc.generators[index][1];
   }
 
+  function _getGeneratorName(industryName, generatorID) {
+    if(generatorID < 0) {//If < 0, then it's the base resource (potato, land, etc.)
+      return $scope[industryName].name[0].toUpperCase() + $scope[industryName].name.slice(1);
+    }
+    return $scope[industryName].generators[generatorID][0];
+  }
+
+  $scope.getGeneratorName = function(loc, generatorID) {
+    if(!isNaN(loc)) {//In order to pass the ID of the industry
+      return _getGeneratorName($scope[industries[loc]].name, generatorID);
+    } else {
+      return _getGeneratorName(loc.name, generatorID);
+    }
+  };
+
   function getJsonForExport() {
     var retString = '{';
     for (var p in industries) {
@@ -865,6 +937,14 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     }
     return retString + '}';
   }
+
+  $scope.getMilestoneName = function(loc, tuple) {
+    //tuple[0]=generatorID, tuple[1]=milestone
+    var ret = '';
+    ret += expFilter(tuple[1]);
+    ret += ' ' + _getGeneratorName(loc.name,tuple[0]);
+    return ret;
+  };
 
   $scope.getNamedType = function(loc, tuple) {
     var i, j, k = '', l = 1, num;
@@ -1098,8 +1178,8 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   };
 
   $scope.setIndustry = function(industry) {
-    $scope.clearAfter = [false, false];
-    $scope.fillBefore = [false, false];
+    $scope.clearAfter = [false];
+    $scope.fillBefore = [false];
     $scope.compare = false;
     $scope.refIndustry = $scope[industry];
     localStorage.setItem('refIndustry', industry);
@@ -1131,10 +1211,14 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
   //   updateIllionize('numScientists', 'viewNumScientists', 'comradesIllions');
   // };
 
+  $scope.updateCientificNumber = function(parent, varName, viewName, expName) {
+      return updateCientificNumber(parent, varName, viewName, expName);
+  };
+
   function updateCientificNumber(parent, varName, viewName, expName) {
-      var ret = parent[viewName];
-      ret *= Math.pow(10,parent[expName]);
-      parent[varName] = ret;
+    var ret = parent[viewName];
+    ret *= Math.pow(10,parent[expName]);
+    parent[varName] = ret;
   }
 
   function updateCientificView(parent, varName, viewName, expName) {
@@ -1142,9 +1226,12 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       parent[viewName] = parent[varName];
       parent[expName] = 0;
     } else {
-      var exp = Math.log(parent[varName]);
-      parent[viewName] = parent[varName] / Math.pow(10, exp);
-      parent[expName] = exp;
+      var filtered = expFilter(parent[varName]).slice('E+');
+      parent[viewName] = Number(filtered[0]);
+      parent[expName] = Number(filtered[1]);
+      // var exp = Math.log(parent[varName]);
+      // parent[viewName] = parent[varName] / Math.pow(10, exp);
+      // parent[expName] = exp;
     }
   }
 
@@ -1198,6 +1285,12 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     updateCientificNumber($scope, 'numScientists', 'viewNumScientists', 'viewExpScientists');
   };
 
+  $scope.updateVariable = function(tuple, idVariable, idViewNumVariable, idViewExpVariable) {
+    var ret = tuple[idViewNumVariable];
+    ret *= Math.pow(10,tuple[idViewExpVariable]);
+    tuple[idVariable] = ret;
+  };
+
   // function updateView(loc,varName, viewName, illionsName) {
   //   if (loc[varName] < Number(1e+6)) {
   //     loc[viewName] = loc[varName];
@@ -1217,6 +1310,17 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
     updateCientificView($scope, 'numScientists', 'viewNumScientists', 'viewExpScientists');
   };
 
+  $scope.updateViewVariables = function(tuple, idVariable, idViewNumVariable, idViewExpVariable) {
+    if(tuple[idVariable] < Number(1e+6)) {
+      tuple[idViewNumVariable] = tuple[idVariable];
+      tuple[idViewExpVariable] = 0;
+    } else {
+      var filtered = expFilter(tuple[idVariable]).slice('E+');
+      tuple[idViewNumVariable] = Number(filtered[0]);
+      tuple[idViewExpVariable] = Number(filtered[1]);
+    }
+  };
+
   // $scope.updateViewNumAngels = function (loc) {
   //   updateView(loc,'numScientists', 'viewNumScientists', 'comradesIllions');
   // };
@@ -1225,48 +1329,47 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
    * Array generators: Each item is a non-base generator (e.g. Farmer, Commune, etc.)
    * The ultimate generatos (e.g. Colony, Super Highway) don't fit in here, think about later...
    * Each item:
-   * [<generatorName>, <amount>, <receipt? Array? Too long...>, <timeout>, <generatedID> (e.g. 0=potato, 1=farmer, etc.), <amountGenerated>, <amountGeneratedTotal=amountGenerated*amount>, <amountGeneratedPerSec=amountGeneratedTotal/timeout>
+   * [<generatorName>, <amount>, <viewAmount>, <viewExpAmount>, <receipt? Array? Too long...>, <timeout>, <generatedID> (e.g. -1=potato, 0=farmer, etc.), <amountGenerated>, <amountGeneratedTotal=amountGenerated*amount>, <amountGeneratedPerSec=amountGeneratedTotal/timeout>
    * Leave last two empty, calculate.
    */
   function loadDefaults() {
     $scope.land.generators = [
-      ['Worker', 0, [], 3, 0, 3, 0, 0],
-      ['Blasting Site', 0, [], 6, 1, 12, 0, 0],
-      ['Clearcut', 0, [], 6, 2, 12, 0, 0],
-      ['Road', 0, [], 12, 3, 48, 0, 0],
-      ['Highway', 0, [], 15, 4, 75, 0, 0]
+      ['Worker', 0, 0, 0, [], 3, -1, 3, 0, 0],
+      ['Blasting Site', 0, 0, 0, [], 6, 0, 12, 0, 0],
+      ['Clearcut', 0, 0, 0, [], 6, 1, 12, 0, 0],
+      ['Road', 0, 0, 0, [], 12, 2, 48, 0, 0],
+      ['Highway', 0, 0, 0, [], 15, 3, 75, 0, 0]
     ];
     $scope.medicine.generators = [
-      ['Nurse', 0, [], 15, 0, 15000, 0, 0],
-      ['Ambulance', 0, [], 30, 0, 1666667, 0, 0],
-      ['Field Hospital', 0, [], 60, 0, 1.85e10, 0, 0],
-      ['Clinic', 0, [], 120, 0, 2.06e14, 0, 0],
-      ['Hospital', 0, [], 240, 0, 2.29e17, 0, 0]
+      ['Nurse', 0, 0, 0, [], 15, -1, 15000, 0, 0],
+      ['Ambulance', 0, 0, 0, [], 30, -1, 1666667, 0, 0],
+      ['Field Hospital', 0, 0, 0, [], 60, -1, 1.85e10, 0, 0],
+      ['Clinic', 0, 0, 0, [], 120, -1, 2.06e14, 0, 0],
+      ['Hospital', 0, 0, 0, [], 240, -1, 2.29e17, 0, 0]
     ];
     $scope.ore.generators = [
-      ['Miner', 0, [], 7, 0, 7, 0, 0],
-      ['Mine', 0, [], 14, 1, 28, 0, 0],
-      ['Excavator', 0, [], 28, 2, 84, 0, 0],
-      ['Mega Mine', 0, [], 56, 3, 224, 0, 0],
-      ['Deep Bore', 0, [], 112, 4, 560, 0, 0]
+      ['Miner', 0, 0, 0, [], 7, -1, 7, 0, 0],
+      ['Mine', 0, 0, 0, [], 14, 0, 28, 0, 0],
+      ['Excavator', 0, 0, 0, [], 28, 1, 84, 0, 0],
+      ['Mega Mine', 0, 0, 0, [], 56, 2, 224, 0, 0],
+      ['Deep Bore', 0, 0, 0, [], 112, 3, 560, 0, 0]
     ];
     $scope.potatoes.generators = [
-      ['Farmer', 0, [], 1, 0, 1, 0, 0],
-      ['Commune', 0, [], 2, 1, 4, 0, 0],
-      ['Collective', 0, [], 3, 2, 9, 0, 0],
-      ['Plantation', 0, [], 4, 3, 16, 0, 0],
-      ['Hive', 0, [], 5, 4, 25, 0, 0]
+      ['Farmer', 0, 0, 0, [], 1, -1, 1, 0, 0],
+      ['Commune', 0, 0, 0, [], 2, 0, 4, 0, 0],
+      ['Collective', 0, 0, 0, [], 3, 1, 9, 0, 0],
+      ['Plantation', 0, 0, 0, [], 4, 2, 16, 0, 0],
+      ['Hive', 0, 0, 0, [], 5, 3, 25, 0, 0]
     ];
     $scope.weapons.generators = [
-      ['Soldier', 0, [], 11, 0, 11, 0, 0],
-      ['Fireteam', 0, [], 22, 0, 520370, 0, 0],
-      ['Squad', 0, [], 44, 0, 4.4e11, 0, 0],
-      ['Platoon', 0, [], 88, 0, 8.8e16, 0, 0],
-      ['Division', 0, [], 176, 0, 1.76e24, 0, 0]
+      ['Soldier', 0, 0, 0, [], 11, -1, 11, 0, 0],
+      ['Fireteam', 0, 0, 0, [], 22, -1, 520370, 0, 0],
+      ['Squad', 0, 0, 0, [], 44, -1, 4.4e11, 0, 0],
+      ['Platoon', 0, 0, 0, [], 88, -1, 8.8e16, 0, 0],
+      ['Division', 0, 0, 0, [], 176, -1, 1.76e24, 0, 0]
     ];
     for (var p in industries) {
-      // $scope[industries[p]].scientistIllions = '';
-      // $scope[industries[p]].comradesIllions = '';
+      $scope[industries[p]].expTotalResource = 0;
       $scope[industries[p]].name = industries[p];
       // $scope[industries[p]].noSingles = false;
       // $scope[industries[p]].noTens = false;
@@ -1274,26 +1377,19 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       // $scope[industries[p]].rec = null;
       // $scope[industries[p]].recTable = [];
       // $scope[industries[p]].recommendation = '';
+      $scope[industries[p]].numTotalResource = 0;
       $scope[industries[p]].resourceAmountPerClick = 1;
       $scope[industries[p]].unlocks = [];
-      // $scope[industries[p]].upgradeCosts = [];
-      // for (var i = 0; i <= $scope[industries[p]].generators.length; i++) {
-      //   $scope[industries[p]].upgradeCosts.push([0, 0, 0, 0, 0, 0, 0, 0]);
-      //   $scope[industries[p]].unlocks.push([]);
-      // }
+      $scope[industries[p]].viewTotalResource = 0;
     }
   }
 
   /**
-   * Array industryExperiments:
-   * Each item
-   * [<generatorID> (e.g. 0=potato, 1=farmer), <multiplier>, <scientistsObtained>, <researched>]
-   *
    * Array medals: I assume that once the user obtains the medal, he will claim the scientists.
    * If selected manually, the user will need to manually input the scientists added;
    * If achieved by recommendation table, make it automatic
    * Each item:
-   * [<generatorID> (e.g. 0=potato, 1=farmer), <milestone>, <scientistsObtained>, <claimed>]
+   * [<generatorID> (e.g. -1=potato, 0=farmer), <milestone>, <scientistsObtained>, <claimed>]
    *
    * Array unlocks: each index is one unlock
    * Array index item:
@@ -1304,47 +1400,46 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
    * [<cost>, <multiplier=7>, <bought>]
    */
   function loadUnlocks() {
-    $scope.land.industryExperiments = [[0, 15, 5], [1, 3, 10], [2, 3, 25], [3, 3, 100], [4, 3, 500], [5, 3, 2000]];
-    $scope.land.medals = [[0, 1e6, 1, false], [0, 1e30, 1, false], [0, 1e75, 1, false],
-        [1, 1e6, 2, false], [1, 1e30, 2, false], [1, 1e75, 2, false],
-        [2, 1e6, 3, false], [2, 1e30, 3, false], [2, 1e75, 3, false],
-        [3, 1e6, 4, false], [3, 1e30, 4, false], [3, 1e75, 4, false],
-        [4, 1e6, 5, false], [4, 1e30, 5, false], [4, 1e75, 5, false],
-        [5, 1e6, 6, false], [5, 1e30, 6, false], [5, 1e75, 6, false]
+    $scope.land.medals = [[-1, 1e6, 1, false], [-1, 1e30, 1, false], [-1, 1e75, 1, false],
+        [0, 1e6, 2, false], [0, 1e30, 2, false], [0, 1e75, 2, false],
+        [1, 1e6, 3, false], [1, 1e30, 3, false], [1, 1e75, 3, false],
+        [2, 1e6, 4, false], [2, 1e30, 4, false], [2, 1e75, 4, false],
+        [3, 1e6, 5, false], [3, 1e30, 5, false], [3, 1e75, 5, false],
+        [4, 1e6, 6, false], [4, 1e30, 6, false], [4, 1e75, 6, false]
     ];
     $scope.land.unlocks = [[0, 500, 1, false], [0, 5e5, 1, false], [0, 5e8, 1, false], [0, 5e11, 1, false],
         [1, 500, 1, false], [1, 5e5, 1, false], [1, 5e8, 1, false], [1, 5e11, 1, false],
         [2, 500, 1, false], [2, 5e5, 1, false], [2, 5e8, 1, false], [2, 5e11, 1, false],
         [3, 500, 1, false], [3, 5e5, 1, false], [3, 5e8, 1, false], [3, 5e11, 1, false],
         [4, 500, 1, false], [4, 5e5, 1, false], [4, 5e8, 1, false], [4, 5e11, 1, false]];
-    $scope.land.upgrades = [[40, 7, false], [8.4e2, 7, false], [1.76e4, 7, false], [3.7e5, 7, false], [7.78e6, 7, false], [1.63e8, 7, false], [3.43e9, 7, false],[7.20e10, 7, false], [1.51e12, 7, false],
-        [3.18e13, 7, false], [6.67e14, 7, false], [1.40e16, 7, false], [2.94e17, 7, false], [6.18e18, 7, false], [1.30e20, 7, false], [2.72e21, 7, false], [5.72e22, 7, false], [1.20e24, 7, false], [2.52e25, 7, false],
-        [5.30e26, 7, false], [1.11e28, 7, false], [2.34e29, 7, false], [4.91e30, 7, false], [1.03e32, 7, false], [2.16e33, 7, false], [4.55e34, 7, false], [9.54e35, 7, false], [2.00e37, 7, false], [4.21e38, 7, false]];
-    $scope.medicine.industryExperiments = [];
+    $scope.land.upgrades = [[40, 7, false], [8.4e2, 7, false], [1.76e4, 7, false], [3.7e5, 7, false], [7.78e6, 7, false], [1.63e8, 7, false], [3.43e9, 7, false],[7.20e10, 7, false], [1.51e12, 7, false], [3.18e13, 7, false],
+        [6.67e14, 7, false], [1.40e16, 7, false], [2.94e17, 7, false], [6.18e18, 7, false], [1.30e20, 7, false], [2.72e21, 7, false], [5.72e22, 7, false], [1.20e24, 7, false], [2.52e25, 7, false], [5.30e26, 7, false],
+        [1.11e28, 7, false], [2.34e29, 7, false], [4.91e30, 7, false], [1.03e32, 7, false], [2.16e33, 7, false], [4.55e34, 7, false], [9.54e35, 7, false], [2.00e37, 7, false], [4.21e38, 7, false], [8.84e39, 7, false]];
+
     $scope.medicine.medals = [];
     $scope.medicine.unlocks = [];
     $scope.medicine.upgrades = [];
-    $scope.ore.industryExperiments = [];
+
     $scope.ore.medals = [];
     $scope.ore.unlocks = [];
     $scope.ore.upgrades = [];
-    $scope.potatoes.industryExperiments = [[0, 15, 5], [1, 3, 10], [2, 3, 25], [3, 3, 100], [4, 3, 500], [5, 3, 2000]];
-    $scope.potatoes.medals = [[0, 1e6, 1, false], [0, 1e30, 1, false], [0, 1e75, 1, false],
-        [1, 1e6, 2, false], [1, 1e30, 2, false], [1, 1e75, 2, false],
-        [2, 1, 3, false], [2, 1e30, 3, false], [2, 1e75, 3, false],
-        [3, 1, 4, false], [3, 1e30, 4, false], [3, 1e75, 4, false],
-        [4, 1, 5, false], [4, 1e30, 5, false], [4, 1e75, 5, false],
-        [5, 1, 6, false], [5, 1e30, 6, false], [5, 1e75, 6, false]
+
+    $scope.potatoes.medals = [[-1, 1e6, 1, false], [-1, 1e30, 1, false], [-1, 1e75, 1, false],
+        [0, 1e6, 2, false], [0, 1e30, 2, false], [0, 1e75, 2, false],
+        [1, 1, 3, false], [1, 1e30, 3, false], [1, 1e75, 3, false],
+        [2, 1, 4, false], [2, 1e30, 4, false], [2, 1e75, 4, false],
+        [3, 1, 5, false], [3, 1e30, 5, false], [3, 1e75, 5, false],
+        [4, 1, 6, false], [4, 1e30, 6, false], [4, 1e75, 6, false]
     ];
     $scope.potatoes.unlocks = [[0, 1000, 1, false], [0, 1e6, 1, false], [0, 1e9, 1, false], [0, 1e12, 1, false],
         [1, 1000, 2, false], [1, 1e6, 2, false], [1, 1e9, 2, false], [1, 1e12, 2, false],
         [2, 500, 3, false], [2, 5e5, 3, false], [2, 5e8, 3, false], [2, 5e11, 3, false],
         [3, 1000, 4, false], [3, 1e6, 4, false], [3, 1e9, 4, false], [3, 1e12, 4, false],
         [4, 1000, 5, false], [4, 1e6, 5, false], [4, 1e9, 5, false], [4, 1e12, 5, false]];
-    $scope.potatoes.upgrades = [[30, 7, false], [6.30e02, 7, false], [1.32e04, 7, false], [2.78e05, 7, false], [5.83e06, 7, false], [1.23e08, 7, false], [2.57e09, 7, false], [5.40e10, 7, false], [1.13e12, 7, false],
-        [2.38e13, 7, false], [5.00e14, 7, false], [1.05e16, 7, false], [2.21e17, 7, false], [4.63e18, 7, false], [9.73e19, 7, false], [2.04e21, 7, false], [4.29e22, 7, false], [9.01e23, 7, false], [1.89e25, 7, false],
-        [3.97e26, 7, false], [8.35e27, 7, false], [1.75e29, 7, false], [3.68e30, 7, false], [7.73e31, 7, false], [1.62e33, 7, false], [3.41e34, 7, false], [7.16e35, 7, false], [1.50e37, 7, false], [3.16e38, 7, false]];
-    $scope.weapons.industryExperiments = [];
+    $scope.potatoes.upgrades = [[30, 7, false], [6.30e02, 7, false], [1.32e04, 7, false], [2.78e05, 7, false], [5.83e06, 7, false], [1.23e08, 7, false], [2.57e09, 7, false], [5.40e10, 7, false], [1.13e12, 7, false], [2.38e13, 7, false],
+        [5.00e14, 7, false], [1.05e16, 7, false], [2.21e17, 7, false], [4.63e18, 7, false], [9.73e19, 7, false], [2.04e21, 7, false], [4.29e22, 7, false], [9.01e23, 7, false], [1.89e25, 7, false], [3.97e26, 7, false],
+        [8.35e27, 7, false], [1.75e29, 7, false], [3.68e30, 7, false], [7.73e31, 7, false], [1.62e33, 7, false], [3.41e34, 7, false], [7.16e35, 7, false], [1.50e37, 7, false], [3.16e38, 7, false], [6.63e39, 7, false]];
+
     $scope.weapons.medals = [];
     $scope.weapons.unlocks = [];
     $scope.weapons.upgrades = [];
