@@ -35,7 +35,7 @@
       </div>
       <div class="form-inline">
         <input type="number" class="form-control" data-ng-model="viewNumComrades" data-ng-blur="updateComrades()" style="width:110px" max="999999.99" min="0" step="0.01" required>
-        E+<input type="number" class="form-control" data-ng-model="viewExpComrades" data-ng-blur="updateComrades()" style="width:70px" max="308" min="0" required> # Comrades
+        E+<input type="number" class="form-control" data-ng-model="viewExpComrades" data-ng-blur="updateComrades()" style="width:70px" max="308" min="0" required> # Comrades ({{comradesPerSecond}} Comrades / second)
         <br><input type="number" class="form-control" data-ng-model="viewNumScientists" data-ng-blur="updateScientists()" style="width:110px" max="999999.99" min="0" step="0.01" required>
         E+<input type="number" class="form-control" data-ng-model="viewExpScientists" data-ng-blur="updateScientists()" style="width:70px" max="308" min="0" required> # Scientists
       </div>
@@ -85,7 +85,7 @@
                   <th>Number</th>
                   <th>Cycle Time</th>
                   <th>Resource</th>
-                  <th>#Resource / Cycle</th>
+                  <th>#Base Profit / Cycle</th>
                   <th>#Total / Cycle</th>
                   <th>#Total / Second</th>
                 </tr>
@@ -98,7 +98,7 @@
                     <!--<input type="number" class="form-control" min="0" data-ng-model="gen[1]" data-ng-change="updateViewVariables(gen,1,2,3)"></td>-->
                   <td>{{gen[5]|time}}</td><!--Cycle Time-->
                   <td><span> {{getGeneratorName(refIndustry, gen[6])}}</span></td><!--Resource-->
-                  <td>{{gen[7]|num:3}}</td><!--#Resource / Cycle-->
+                  <td>{{gen[7]|num:3}}</td><!--#Base Profit / Cycle-->
                   <td>{{gen[8]|num:3}}</td><!--#Total / Cycle-->
                   <td>{{gen[9]|num:3}}</td><!--#Total / Second-->
                 </tr>
@@ -145,20 +145,20 @@
                   Upgrades
                 </div>
               </uib-accordion-heading>
-              <div class="well">
-                <div class="row text-center">
-                  <div class="form-inline col-md-3 col-md-offset-3">
-                    <label><input type="checkbox" class="form-inline" data-ng-model="fillBefore[0]"> Buy All Before Selection (Inclusive)</label>
-                  </div>
-                  <div class="form-inline col-md-3">
-                    <label><input type="checkbox" class="form-inline" data-ng-model="clearAfter[0]"> Clear All After Selection (Inclusive)</label>
-                  </div>
-                </div>
-              </div>
+              <!--<div class="well">-->
+                <!--<div class="row text-center">-->
+                  <!--<div class="form-inline col-md-3 col-md-offset-3">-->
+                    <!--<label><input type="checkbox" class="form-inline" data-ng-model="fillBefore[0]"> Buy All Before Selection (Inclusive)</label>-->
+                  <!--</div>-->
+                  <!--<div class="form-inline col-md-3">-->
+                    <!--<label><input type="checkbox" class="form-inline" data-ng-model="clearAfter[0]"> Clear All After Selection (Inclusive)</label>-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
               <div class="multicolumn">
                 <div data-ng-repeat="upgrade in refIndustry.upgrades track by $index">
                   <label class="strike-when-checked">
-                    <input type="checkbox" class="form-inline" data-ng-model="upgrade[2]" data-ng-change="">
+                    <input type="checkbox" class="form-inline" data-ng-model="upgrade[2]" data-ng-change="checkUpgrade(refIndustry,$index)">
                     <span>Upgrade {{$index + 1}} ({{upgrade[0]|num:2}} {{refIndustry.name}}. x{{upgrade[1]}} Profit)</span>
                   </label>
                 </div>
@@ -171,7 +171,7 @@
                 </div>
               </uib-accordion-heading>
               <div class="form-inline">
-                <input type="number" class="form-control" data-ng-model="autoClicker[2]" data-ng-change="" style="width: 70px" min="0"># Auto Clicker: ({{autoClicker[1]}} scientists. Current time: {{autoClicker[0]/(autoClicker[2] > 0 ? autoClicker[2] : 1)|num}} seconds)
+                <input type="number" class="form-control" data-ng-model="autoClicker[2]" data-ng-change="" style="width: 70px" min="0"> # Auto Clicker: ({{autoClicker[1]}} scientists. Current time: {{(autoClicker[0]/(autoClicker[2] > 0 ? autoClicker[2] : 1)).toFixed(2)}} seconds)
               </div>
               <div class="row col-xs-12">
                 <h4>State (Current Profit Multiplier: x{{totalProfitMultiplier}})</h4>
@@ -196,6 +196,20 @@
           </uib-accordion>
         </div>
       </div>
+      <div class="row">
+        <div class="col-xs-12 text-center">
+          <button type="button" class="btn btn-lg btn-primary" data-ng-click="calc()">Calculate</button>
+        </div>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="col-xs-12">
+          <!--<h2>Total $ / second&nbsp;:&nbsp;&nbsp;{{ref.totalMoneyPerSecond | number}} ({{ref.totalMoneyPerSecond | num}})</h2>-->
+          <!--<h2>Total $ / minute&nbsp;&nbsp;:&nbsp;&nbsp;{{ref.totalMoneyPerSecond * 60 | number}} ({{ref.totalMoneyPerSecond * 60 | num}})</h2>-->
+          <!--<h2>Total $ / hour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;{{ref.totalMoneyPerSecond * 3600 | number}} ({{ref.totalMoneyPerSecond * 3600 | num}})</h2>-->
+        </div>
+      </div>
+      <hr />
     </div>
   </body>
 </html>
