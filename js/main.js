@@ -1131,9 +1131,9 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
       ['Road', 0, 0, 0, [], 12, 2, 48, 0, 0],
       ['Highway', 0, 0, 0, [], 15, 3, 75, 0, 0]
     ];
-    // $scope.medicine.baseProfit = [15000, 1666667, 1.85e10, 2.06e14, 2.29e17];
+    // $scope.medicine.baseProfit = [15, 1666667, 1.85e10, 2.06e14, 2.29e17];
     $scope.medicine.generators = [
-      ['Nurse', 0, 0, 0, [], 15, -1, 15000, 0, 0],
+      ['Nurse', 0, 0, 0, [], 15, -1, 15, 0, 0],
       ['Ambulance', 0, 0, 0, [], 30, -1, 1666667, 0, 0],
       ['Field Hospital', 0, 0, 0, [], 60, -1, 1.85e10, 0, 0],
       ['Clinic', 0, 0, 0, [], 120, -1, 2.06e14, 0, 0],
@@ -1213,10 +1213,10 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
 
     $scope.medicine.medals = [[-1, 1e6, 1, false], [-1, 1e30, 1, false], [-1, 1e75, 1, false],
         [0, 1e6, 2, false], [0, 1e30, 2, false], [0, 1e75, 2, false],
-        [1, 1, 3, false], [1, 1e30, 3, false], [1, 1e75, 3, false],
-        [2, 1, 4, false], [2, 1e30, 4, false], [2, 1e75, 4, false],
-        [3, 1, 5, false], [3, 1e30, 5, false], [3, 1e75, 5, false],
-        [4, 1, 6, false], [4, 1e30, 6, false], [4, 1e75, 6, false]
+        [1, 1e6, 3, false], [1, 1e30, 3, false], [1, 1e75, 3, false],
+        [2, 1e6, 4, false], [2, 1e30, 4, false], [2, 1e75, 4, false],
+        [3, 1e6, 5, false], [3, 1e30, 5, false], [3, 1e75, 5, false],
+        [4, 1e6, 6, false], [4, 1e30, 6, false], [4, 1e75, 6, false]
     ];
     $scope.medicine.unlocks = [[0, 100, 3, false], [0, 10000, 3, false], [0, 1.00e6, 3, false], [0, 1.00e8, 3, false],
         [1, 100, 6, false], [1, 10000, 6, false], [1, 1.00e6, 6, false], [1, 1.00e8, 6, false],
@@ -1229,16 +1229,16 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
 
     $scope.ore.medals = [[-1, 1e6, 1, false], [-1, 1e30, 1, false], [-1, 1e75, 1, false],
         [0, 1e6, 2, false], [0, 1e30, 2, false], [0, 1e75, 2, false],
-        [1, 1, 3, false], [1, 1e30, 3, false], [1, 1e75, 3, false],
-        [2, 1, 4, false], [2, 1e30, 4, false], [2, 1e75, 4, false],
-        [3, 1, 5, false], [3, 1e30, 5, false], [3, 1e75, 5, false],
-        [4, 1, 6, false], [4, 1e30, 6, false], [4, 1e75, 6, false]
+        [1, 1e6, 3, false], [1, 1e30, 3, false], [1, 1e75, 3, false],
+        [2, 1e6, 4, false], [2, 1e30, 4, false], [2, 1e75, 4, false],
+        [3, 1e6, 5, false], [3, 1e30, 5, false], [3, 1e75, 5, false],
+        [4, 1e6, 6, false], [4, 1e30, 6, false], [4, 1e75, 6, false]
     ];
     $scope.ore.unlocks = [[0, 250, 1, false], [0, 250000, 1, false], [0, 2.50e08, 1, false], [0, 2.50e11, 1, false],
-        [1, 250, 1, false], [1, 250000, 1, false], [1, 2.5e8, 1, false], [1, 2.5e11, 1, false],
-        [2, 250, 1, false], [2, 250000, 1, false], [2, 2.5e8, 1, false], [2, 2.5e11, 1, false],
-        [3, 250, 1, false], [3, 250000, 1, false], [3, 2.5e8, 1, false], [3, 2.5e11, 1, false],
-        [4, 250, 1, false], [4, 250000, 1, false], [4, 2.5e8, 1, false], [4, 2.5e11, 1, false]];
+        [1, 250, 2, false], [1, 250000, 2, false], [1, 2.5e8, 2, false], [1, 2.5e11, 2, false],
+        [2, 250, 3, false], [2, 250000, 3, false], [2, 2.5e8, 3, false], [2, 2.5e11, 3, false],
+        [3, 250, 4, false], [3, 250000, 4, false], [3, 2.5e8, 4, false], [3, 2.5e11, 4, false],
+        [4, 250, 5, false], [4, 250000, 5, false], [4, 2.5e8, 5, false], [4, 2.5e11, 5, false]];
     $scope.ore.upgrades = [[50, 7, false], [1.05e03, 7, false], [2.21e04, 7, false], [4.63e05, 7, false], [9.72e06, 7, false], [2.04e08, 7, false], [4.29e09, 7, false], [9.01e10, 7, false], [1.89e12, 7, false], [3.97e13, 7, false],
         [8.34e14, 7, false], [1.75e16, 7, false], [3.68e17, 7, false], [7.72e18, 7, false], [1.62e20, 7, false], [3.41e21, 7, false], [7.15e22, 7, false], [1.50e24, 7, false], [3.15e25, 7, false], [6.62e26, 7, false],
         [1.39e28, 7, false], [2.92e29, 7, false], [6.13e30, 7, false], [1.29e32, 7, false], [2.71e33, 7, false], [5.68e34, 7, false], [1.19e36, 7, false], [2.51e37, 7, false], [5.26e38, 7, false], [1.10e40, 7, false]];
@@ -1261,10 +1261,10 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
 
     $scope.weapons.medals = [[-1, 1e6, 1, false], [-1, 1e30, 1, false], [-1, 1e75, 1, false],
         [0, 1e6, 2, false], [0, 1e30, 2, false], [0, 1e75, 2, false],
-        [1, 1, 3, false], [1, 1e30, 3, false], [1, 1e75, 3, false],
-        [2, 1, 4, false], [2, 1e30, 4, false], [2, 1e75, 4, false],
-        [3, 1, 5, false], [3, 1e30, 5, false], [3, 1e75, 5, false],
-        [4, 1, 6, false], [4, 1e30, 6, false], [4, 1e75, 6, false]
+        [1, 1e6, 3, false], [1, 1e30, 3, false], [1, 1e75, 3, false],
+        [2, 1e6, 4, false], [2, 1e30, 4, false], [2, 1e75, 4, false],
+        [3, 1e6, 5, false], [3, 1e30, 5, false], [3, 1e75, 5, false],
+        [4, 1e6, 6, false], [4, 1e30, 6, false], [4, 1e75, 6, false]
     ];
     $scope.weapons.unlocks = [[0, 100, 2, false], [0, 100000, 2, false], [0, 1e8, 2, false], [0, 1e11, 2, false],
         [1, 100, 4, false], [1, 100000, 4, false], [1, 1e8, 4, false], [1, 1e11, 4, false],
