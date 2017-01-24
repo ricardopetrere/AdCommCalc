@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/bonusstyle.css">
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-animate.min.js"></script>
+    <script src="js/ui-bootstrap-custom-tpls-0.14.3.min.js"></script>
+    <script src="js/main.js"></script>
+    <title>AdVenture Communist Calculator</title>
+    <base href="/">
+  </head>
+  <body data-ng-app="advApp"><!-- style="background-color:#ffdddd">-->
+    <div class="container-fluid col-xs-12" data-ng-controller="advController">
+      <div class="page-header">
+        <div class="row">
+          <div class="col-sm-8 text-center-xs slim-bottom-margin">
+            <h1>AdVenture Communist Calculator - v0.1</h1>
+          </div>
+          <div class="col-sm-4 text-right text-center-xs">
+            <div class="input-group inline-block">
+              <label class="input-group-btn reset-width">
+                <span class="btn btn-primary">
+                  Load a Saved State<input type="file" id="fileInput" style="display: none;">
+                </span>
+              </label>
+              <div class="input-group-btn reset-width">
+                <button type="button" class="btn btn-primary" data-ng-click="export()">Save State</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-inline">
+        <input type="number" class="form-control" data-ng-model="viewNumComrades" data-ng-blur="updateComrades()" style="width:110px" max="999999.99" min="0" step="0.01" required>
+        E+<input type="number" class="form-control" data-ng-model="viewExpComrades" data-ng-blur="updateComrades()" style="width:70px" max="308" min="0" required> # Comrades ({{comradesPerSecond}} Comrades / second)
+        <br><input type="number" class="form-control" data-ng-model="viewNumScientists" data-ng-blur="updateScientists()" style="width:110px" max="999999.99" min="0" step="0.01" required>
+        E+<input type="number" class="form-control" data-ng-model="viewExpScientists" data-ng-blur="updateScientists()" style="width:70px" max="308" min="0" required> # Scientists
+      </div>
+      <div class="row">
+        <div class="col-xs-12 bottom-margin">
+          <ul class="nav nav-tabs nav-justified">
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('potatoes')}"><a data-ng-click="setIndustry('potatoes')">Potatoes <br>
+              <div class="form-inline">
+                (<input type="number" class="form-control" data-ng-model="potatoes.viewTotalResource" data-ng-change="updateCientificNumber(potatoes, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:110px" max="999999.99" min="0" step="0.01" required>
+                E+<input type="number" class="form-control" data-ng-model="potatoes.expTotalResource" data-ng-change="updateCientificNumber(potatoes, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:70px" max="308" min="0" required>)
+              </div>
+            </a></li>
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('land')}"><a data-ng-click="setIndustry('land')">Land <br>
+              <div class="form-inline">
+                (<input type="number" class="form-control" data-ng-model="land.viewTotalResource" data-ng-change="updateCientificNumber(land, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:110px" max="999999.99" min="0" step="0.01" required>
+                E+<input type="number" class="form-control" data-ng-model="land.expTotalResource" data-ng-change="updateCientificNumber(land, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:70px" max="308" min="0" required>)
+              </div>
+            </a></li>
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('ore')}"><a data-ng-click="setIndustry('ore')">Ore <br>
+              <div class="form-inline">
+                (<input type="number" class="form-control" data-ng-model="ore.viewTotalResource" data-ng-change="updateCientificNumber(ore, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:110px" max="999999.99" min="0" step="0.01" required>
+                E+<input type="number" class="form-control" data-ng-model="ore.expTotalResource" data-ng-change="updateCientificNumber(ore, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:70px" max="308" min="0" required>)
+              </div>
+            </a></li>
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('weapons')}"><a data-ng-click="setIndustry('weapons')">Weapons <br>
+              <div class="form-inline">
+                (<input type="number" class="form-control" data-ng-model="weapons.viewTotalResource" data-ng-change="updateCientificNumber(weapons, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:110px" max="999999.99" min="0" step="0.01" required>
+                E+<input type="number" class="form-control" data-ng-model="weapons.expTotalResource" data-ng-change="updateCientificNumber(weapons, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:70px" max="308" min="0" required>)
+              </div>
+            </a></li>
+            <li role="presentation" data-ng-class="{active: !isCompare() && isIndustry('medicine')}"><a data-ng-click="setIndustry('medicine')">Medicine <br>
+              <div class="form-inline">
+                (<input type="number" class="form-control" data-ng-model="medicine.viewTotalResource" data-ng-change="updateCientificNumber(medicine, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:110px" max="999999.99" min="0" step="0.01" required>
+                E+<input type="number" class="form-control" data-ng-model="medicine.expTotalResource" data-ng-change="updateCientificNumber(medicine, 'numTotalResource', 'viewTotalResource', 'expTotalResource')" style="width:70px" max="308" min="0" required>)
+              </div>
+            </a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <h3>{{refIndustry.resourceAmountPerClick}} {{refIndustry.name}} / click</h3>
+          <div class="col-xs-12">
+            <table class="table table-striped table-hover table-bordered space_top">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Number</th>
+                  <th>Cycle Time</th>
+                  <th>Resource</th>
+                  <th>#Base Profit / Cycle</th>
+                  <th>#Total / Cycle</th>
+                  <th>#Total / Second</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-ng-repeat="gen in refIndustry.generators track by $index">
+                  <td>{{gen[0]}}</td><!--Type-->
+                  <td><div class="form-inline"><input type="number" class="form-control" data-ng-model="gen[2]" data-ng-change="updateVariable(gen,1,2,3)" style="width:110px" max="999999.99" min="0" step="0.01" required>
+                    E+<input type="number" class="form-control" data-ng-model="gen[3]" data-ng-change="updateVariable(gen,1,2,3)" style="width:70px" max="308" min="0" required></div><!--Number-->
+                    <!--<input type="number" class="form-control" min="0" data-ng-model="gen[1]" data-ng-change="updateViewVariables(gen,1,2,3)"></td>-->
+                  <td>{{gen[5]|time}}</td><!--Cycle Time-->
+                  <td><span> {{getGeneratorName(refIndustry, gen[6])}}</span></td><!--Resource-->
+                  <td>{{gen[7]|num:3}}</td><!--#Base Profit / Cycle-->
+                  <td>{{gen[8]|num:3}}</td><!--#Total / Cycle-->
+                  <td>{{gen[9]|num:3}}</td><!--#Total / Second-->
+                </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <uib-accordion close-others="false">
+            <uib-accordion-group is-open="accOpen[0]">
+              <uib-accordion-heading ng-click="accOpen[0] = !accOpen[0]">
+                <div class="clickable-panel">
+                  Unlocks
+                </div>
+              </uib-accordion-heading>
+              <div class="multicolumn">
+                <div data-ng-repeat="unlock in refIndustry.unlocks track by $index">
+                  <label class="strike-when-checked">
+                    <input type="checkbox" class="form-inline" data-ng-model="unlock[3]" data-ng-change="">
+                    <span>{{getMilestoneName(refIndustry, unlock)}} (+{{unlock[2]}} comrades/sec)</span>
+                  </label>
+                </div>
+              </div>
+            </uib-accordion-group>
+            <uib-accordion-group is-open="accOpen[1]">
+              <uib-accordion-heading ng-click="accOpen[1] = !accOpen[1]">
+                <div class="clickable-panel">
+                  Medals
+                </div>
+              </uib-accordion-heading>
+              <div class="multicolumn">
+                <div data-ng-repeat="medal in refIndustry.medals track by $index">
+                  <label class="strike-when-checked">
+                    <input type="checkbox" class="form-inline" data-ng-model="medal[3]" data-ng-change="">
+                    <span>{{getMilestoneName(refIndustry, medal)}} (+{{medal[2]}} scientists)</span>
+                  </label>
+                </div>
+              </div>
+            </uib-accordion-group>
+            <uib-accordion-group is-open="accOpen[2]">
+              <uib-accordion-heading ng-click="accOpen[2] = !accOpen[2]">
+                <div class="clickable-panel">
+                  Upgrades
+                </div>
+              </uib-accordion-heading>
+              <!--<div class="well">-->
+                <!--<div class="row text-center">-->
+                  <!--<div class="form-inline col-md-3 col-md-offset-3">-->
+                    <!--<label><input type="checkbox" class="form-inline" data-ng-model="fillBefore[0]"> Buy All Before Selection (Inclusive)</label>-->
+                  <!--</div>-->
+                  <!--<div class="form-inline col-md-3">-->
+                    <!--<label><input type="checkbox" class="form-inline" data-ng-model="clearAfter[0]"> Clear All After Selection (Inclusive)</label>-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+              <div class="multicolumn">
+                <div data-ng-repeat="upgrade in refIndustry.upgrades track by $index">
+                  <label class="strike-when-checked">
+                    <input type="checkbox" class="form-inline" data-ng-model="upgrade[2]" data-ng-change="checkUpgrade(refIndustry,$index)">
+                    <span>Upgrade {{$index + 1}} ({{upgrade[0]|num:2}} {{refIndustry.name}}. x{{upgrade[1]}} Profit)</span>
+                  </label>
+                </div>
+              </div>
+            </uib-accordion-group>
+            <uib-accordion-group is-open="accOpen[3]">
+              <uib-accordion-heading ng-click="accOpen[3] = !accOpen[3]">
+                <div class="clickable-panel">
+                  Experiments
+                </div>
+              </uib-accordion-heading>
+              <div class="form-inline">
+                <input type="number" class="form-control" data-ng-model="autoClicker[2]" data-ng-change="" style="width: 70px" min="0"> # Auto Clicker: ({{autoClicker[1]}} scientists. Current time: {{(autoClicker[0]/(autoClicker[2] > 0 ? autoClicker[2] : 1)).toFixed(2)}} seconds)
+              </div>
+              <div class="row col-xs-12">
+                <h4>State (Current Profit Multiplier: x{{totalProfitMultiplier}})</h4>
+                <div class="multicolumn">
+                  <div data-ng-repeat="stateExp in stateExperiments track by $index">
+                    <label class="form-inline"><input type="number" class="form-control" data-ng-model="stateExp[2]" data-ng-change="" style="width:70px" min="0"> # x{{stateExp[0]}} Profit ({{stateExp[1]}} scientists)</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row col-xs-12">
+                <h4>Industry</h4>
+                <div class="multicolumn">
+                  <div data-ng-repeat="ind in industryExperiments track by $index">
+                    <label class="strike-when-checked">
+                      <input type="checkbox" class="form-inline" data-ng-model="ind[4]" data-ng-change="">
+                      <span>{{getGeneratorName(ind[0], ind[1])}} x{{ind[2]}} ({{ind[3]}} scientists)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </uib-accordion-group>
+          </uib-accordion>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 text-center">
+          <button type="button" class="btn btn-lg btn-primary" data-ng-click="calc()">Calculate</button>
+        </div>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="col-xs-12">
+          <!--<h2>Total $ / second&nbsp;:&nbsp;&nbsp;{{ref.totalMoneyPerSecond | number}} ({{ref.totalMoneyPerSecond | num}})</h2>-->
+          <!--<h2>Total $ / minute&nbsp;&nbsp;:&nbsp;&nbsp;{{ref.totalMoneyPerSecond * 60 | number}} ({{ref.totalMoneyPerSecond * 60 | num}})</h2>-->
+          <!--<h2>Total $ / hour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;{{ref.totalMoneyPerSecond * 3600 | number}} ({{ref.totalMoneyPerSecond * 3600 | num}})</h2>-->
+        </div>
+      </div>
+      <hr />
+    </div>
+  </body>
+</html>
