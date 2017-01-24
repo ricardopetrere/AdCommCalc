@@ -1243,12 +1243,12 @@ advApp.controller('advController', ['$document', '$filter', '$scope', function($
         [8.34e14, 7, false], [1.75e16, 7, false], [3.68e17, 7, false], [7.72e18, 7, false], [1.62e20, 7, false], [3.41e21, 7, false], [7.15e22, 7, false], [1.50e24, 7, false], [3.15e25, 7, false], [6.62e26, 7, false],
         [1.39e28, 7, false], [2.92e29, 7, false], [6.13e30, 7, false], [1.29e32, 7, false], [2.71e33, 7, false], [5.68e34, 7, false], [1.19e36, 7, false], [2.51e37, 7, false], [5.26e38, 7, false], [1.10e40, 7, false]];
 
-    $scope.potatoes.medals = [[-1, 1e6, 1, false], [-1, 1e30, 3, false], [-1, 1e75, 1, false],
-        [0, 1e6, 2, false], [0, 1e30, 2, false], [0, 1e75, 2, false],
-        [1, 1, 3, false], [1, 1e30, 3, false], [1, 1e75, 3, false],
-        [2, 1, 4, false], [2, 1e30, 4, false], [2, 1e75, 4, false],
-        [3, 1, 5, false], [3, 1e30, 5, false], [3, 1e75, 5, false],
-        [4, 1, 6, false], [4, 1e30, 6, false], [4, 1e75, 6, false]
+    $scope.potatoes.medals = [[-1, 1000, 1, false], [-1, 1e20, 3, false], [-1, 1e50, 1, false],
+        [0, 1000, 2, false], [0, 1e20, 2, false], [0, 1e50, 2, false],
+        [1, 1000, 3, false], [1, 1e20, 3, false], [1, 1e50, 3, false],
+        [2, 1000, 4, false], [2, 1e20, 4, false], [2, 1e50, 4, false],
+        [3, 1000, 5, false], [3, 1e20, 5, false], [3, 1e50, 5, false],
+        [4, 1000, 6, false], [4, 1e20, 6, false], [4, 1e50, 6, false]
     ];
     $scope.potatoes.unlocks = [[0, 1000, 1, false], [0, 1e6, 1, false], [0, 1e9, 1, false], [0, 1e12, 1, false],
         [1, 1000, 2, false], [1, 1e6, 2, false], [1, 1e9, 2, false], [1, 1e12, 2, false],
